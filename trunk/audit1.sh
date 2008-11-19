@@ -45,6 +45,7 @@
 VERSION="audit1.sh: Oct.2008, http://sean.boran.com/audit, Sean Boran"
 
 # HISTORY:
+#      19.Nov.08 sb Dos linefeeds removed.. add uptime, rearrange headers
 #      29.Oct.08 sb Fixes: Ubuntu 7.10, HP, add uptime, rearrange headers
 #      02.Nov.07 sb new: sudo, HP tweaks, mysql, SSH trusts:$
 #      22.Dec.06 sb Suse: add 'siga'
