@@ -237,7 +237,7 @@ else {
     @filesys = `$get_fs_cmd | egrep -v "$exclude"`; # fill array with fs names
     chop(@filesys);
     #print("Analysing @filesys, excluding filesystems: $exclude, excluding directories: $exclude_dirs\n") if $debug;
-    print("Analysing @filesys, excluding filesystems: $exclude, excluding directories: $exclude_dirs\n") $debug;
+    print("Analysing @filesys, excluding filesystems: $exclude, excluding directories: $exclude_dirs\n") if $debug;
     &perror("Analysing @filesys\n  excluding filesystems: $exclude \n  excluding directories: $exclude_dirs\n");
   } else {
     @filesys = `$get_fs_cmd`;                  # fill array with fs names
