@@ -71,8 +71,9 @@ $VERSION="audit2.pl/Oct.09";
 
 
 # =======> SETTINGS: edit these variables if needed <===============
-# Don't examine these filesystems
-$exclude ='/backup|/dir2';     # Don't examine these filesystems
+
+$exclude ='/backup|/dev/shm|/dev';     # Don't examine these filesystems
+                              # ignore /dev for newer linux
 
 # do not search these directories
 $exclude_dirs='^\/home\/test1|^\/home\/test2';  
