@@ -1,0 +1,12 @@
+#summary One-sentence summary of this page.
+
+= Introduction =
+
+What test boxes have we available?
+
+
+= Details =
+
+Add your content here.  Format your content with:
+  * Sean: Solaris 8 SPARC, Ubuntu x86
+  * Pablo: fedora 9, centos 5.2, and solaris 10
