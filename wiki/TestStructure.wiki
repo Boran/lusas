@@ -1,0 +1,54 @@
+#summary Bla
+#labels Phase-Requirements
+
+= Introduction =
+
+After analiysing the scripts and what they do we decided that we could give a nicer order to the information.
+
+
+= Details =
+
+*Setup*
++Setup paths, and variables
+
+*System Info*
++ Hostname
++ Os Info
++ uptime
++ Hw Info
++ Filesystem Info
+
+*User / Accounts Info*
++ w / whodo
++ Accounts checks
++ Passwd and shadow checks
+
+*Networking Information*
++ Interfaces
++ Routing
++ Ports and sockets
++ Firewalls
+
+*Kernel + Process Info*
++ Kernel Info
++ Process Info
+
+
+*Services*
++ Check which services are installed
++ Services status
++ Specific services tests: sendmail, postfix, apache, samba, mysql, postgreSQL, oracle
+
+
+*Software and Packages*
++ Installed software
++ Patch level
+
+*Logs*
++ Capture log files
++ Grep for common errors
++ Check for log rotation
+
+*Virtualization*
++ Check for Hypervisers and services
++ Check for Containers and Zones (Solaris)
