@@ -12,35 +12,63 @@ After analiysing the scripts and what they do we decided that we could give a ni
   * Setup paths, and variables
 
 *System Info*
-
   * Hostname
   * Os Info
   * uptime
   * Hw Info
   * Filesystem Info
 
-
 *User / Accounts Info*
   * w / whodo
   * Accounts checks
   * Passwd and shadow checks
+  * Account settings
+  * Home directory and SSH trust permissions
+  * Sudo
+  * Console Security
 
 *Networking Information*
+  * Host info
   * Interfaces
+  * Statistics
   * Routing
   * Ports and sockets
   * Firewalls
 
-*Kernel + Process Info*
+*Kernel, Process, devices, and ports Info*
   * Kernel Info
   * Process Info
+  * List open files, devices, ports...
+  *Check /dev/random
 
 *Services*
-  * Check which services are installed
   * Services status
+  * Inetd services
+  * TCP Wrappers
   * Specific services tests: sendmail, postfix, apache, samba, mysql, postgreSQL, oracle
+    * SSH
+    * SNMP
+    * FTP
+    * NTP
+    * RPC
+    * NFS
+    * NIS+
+    * X11
+    * Samba
+    * BIND
+    * DHCP
+    * LDAP
+    * Apache
+    * Syslog
+    * Cron
+    * Mail Services
+      * Sendmail
+      * Postfix
+    * Database Servers
+      * mysql
+      * postgreSQL
 
-*Software and Packages*
+*Software, Packages*
   * Installed software
   * Patch level
 
