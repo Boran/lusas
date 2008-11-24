@@ -9,46 +9,46 @@ After analiysing the scripts and what they do we decided that we could give a ni
 = Details =
 
 *Setup*
-+Setup paths, and variables
+  *Setup paths, and variables
 
 *System Info*
-+ Hostname
-+ Os Info
-+ uptime
-+ Hw Info
-+ Filesystem Info
+
+  * Hostname
+  * Os Info
+  * uptime
+  * Hw Info
+  * Filesystem Info
+
 
 *User / Accounts Info*
-+ w / whodo
-+ Accounts checks
-+ Passwd and shadow checks
+  * w / whodo
+  * Accounts checks
+  * Passwd and shadow checks
 
 *Networking Information*
-+ Interfaces
-+ Routing
-+ Ports and sockets
-+ Firewalls
+  * Interfaces
+  * Routing
+  * Ports and sockets
+  * Firewalls
 
 *Kernel + Process Info*
-+ Kernel Info
-+ Process Info
-
+  * Kernel Info
+  * Process Info
 
 *Services*
-+ Check which services are installed
-+ Services status
-+ Specific services tests: sendmail, postfix, apache, samba, mysql, postgreSQL, oracle
-
+  * Check which services are installed
+  * Services status
+  * Specific services tests: sendmail, postfix, apache, samba, mysql, postgreSQL, oracle
 
 *Software and Packages*
-+ Installed software
-+ Patch level
+  * Installed software
+  * Patch level
 
 *Logs*
-+ Capture log files
-+ Grep for common errors
-+ Check for log rotation
+  * Capture log files
+  * Grep for common errors
+  * Check for log rotation
 
 *Virtualization*
-+ Check for Hypervisers and services
-+ Check for Containers and Zones (Solaris)
+  * Check for Hypervisers and services
+  * Check for Containers and Zones (Solaris)
