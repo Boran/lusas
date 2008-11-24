@@ -9,7 +9,7 @@ After analiysing the scripts and what they do we decided that we could give a ni
 = Details =
 
 *Setup*
-  *Setup paths, and variables
+  * Setup paths, and variables
 
 *System Info*
 
