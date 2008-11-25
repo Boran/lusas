@@ -1241,8 +1241,19 @@ $echo "---------- Check for log rotation ----------\n"
 $echo ">>>>>>>>>> Virtualization ----------"
 ###  * Check for Hypervisers and services
 $echo "---------- Check for Hypervisers and services ----------\n"
+
 ###  * Check for Containers and Zones (Solaris)
-$echo "---------- Check for Hypervisers and services ----------\n"
+$echo "---------- Check for Containers and Zones (Solaris) ----------\n"
+## Check if Zones are supported in earlier versions
+if [ "$rel" = "5.10" ] ; then 
+	run zoneadm list -cv
+	$echo "\nShowing the full config of each zone\n\n"
+	for i in `zoneadm list -cp|cut -d: -f2 |grep -v global`; do
+		run zonecfg -z $i info
+		$echo "\n--\n"
+	done
+fi
+
 
 date
 $echo ">>>>>>>>>> Done <<<<<<<<<<<"
