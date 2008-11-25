@@ -71,79 +71,79 @@ rel=`uname -r`
 hw=`uname -m`
 
 if [ "$os" = "SunOS" ] ; then
-  echo='/usr/5bin/echo'
-  ps='ps -ef';
-  proc1='/bin/ps -e -o comm ';
-  fstab='/etc/vfstab';
-  shares='/etc/dfs/dfstab';
-  lsof='lsof -i -C';
-  mount='mount -p';
-  PATH=/bin:/usr/sbin:/usr/ucb:/usr/local/bin:/usr/local/sbin:/opt/csw/sbin:/opt/csw/bin:/opt/sfw/sbin:/opt/sfw/bin:/usr/openwin/bin:/usr/proc/bin:/opt/gnu/bin:/opt/sec/bin:/opt/sec/sbin:/opt/OBSDssh/bin:/opt/openssh/bin:/opt/sec/bin:/opt/postfix:/usr/ccs/bin:/opt/md5
-  aliases='/etc/mail/aliases';
-  key_progs='/usr/bin/passwd /usr/bin/login /usr/bin/ps /usr/bin/netstat /usr/sbin/modinfo';
-  snmp='/etc/snmp/conf/snmpd.conf';
-  crontab='crontab -l root';
-  ntp='/etc/inet/ntp.conf';
-
+    echo='/usr/5bin/echo'
+    ps='ps -ef';
+    proc1='/bin/ps -e -o comm ';
+    fstab='/etc/vfstab';
+    shares='/etc/dfs/dfstab';
+    lsof='lsof -i -C';
+    mount='mount -p';
+    PATH=/bin:/usr/sbin:/usr/ucb:/usr/local/bin:/usr/local/sbin:/opt/csw/sbin:/opt/csw/bin:/opt/sfw/sbin:/opt/sfw/bin:/usr/openwin/bin:/usr/proc/bin:/opt/gnu/bin:/opt/sec/bin:/opt/sec/sbin:/opt/OBSDssh/bin:/opt/openssh/bin:/opt/sec/bin:/opt/postfix:/usr/ccs/bin:/opt/md5
+    aliases='/etc/mail/aliases';
+    key_progs='/usr/bin/passwd /usr/bin/login /usr/bin/ps /usr/bin/netstat /usr/sbin/modinfo';
+    snmp='/etc/snmp/conf/snmpd.conf';
+    crontab='crontab -l root';
+    ntp='/etc/inet/ntp.conf';
+    
 elif [ "$os" = "HP-UX" ] ; then
-  echo='/usr/bin/echo'
-  ps='ps -ef';
+    echo='/usr/bin/echo'
+    ps='ps -ef';
   # Proc1 not working on B.11.23
   #proc1='/bin/ps -e -o comm ';
-  proc1="ps -e | awk '{print $4}' ";   # get process name, commandline
-  fstab='/etc/fstab';
-  shares='/etc/exports';
-  lsof='lsof -i -C';
-  mount='mount -p';
-  PATH=/bin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/bin:/usr/local/sbin:/opt/sec/bin:/opt/sec/sbin:/opt/openssh/bin:/usr/local/lsof/bin:/usr/bin/X11:/opt/postfix:/usr/kerberos/bin:/usr/X11R6/bin
-  aliases='/etc/mail/aliases';
-  key_progs='/usr/bin/passwd /usr/bin/login /usr/bin/ps /usr/bin/netstat';
-  snmp='/etc/SnmpAgent.d/snmpd.conf';
-  crontab='crontab -l root';
-  ntp='/etc/ntp.conf';
-
+    proc1="ps -e | awk '{print $4}' ";   # get process name, commandline
+    fstab='/etc/fstab';
+    shares='/etc/exports';
+    lsof='lsof -i -C';
+    mount='mount -p';
+    PATH=/bin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/bin:/usr/local/sbin:/opt/sec/bin:/opt/sec/sbin:/opt/openssh/bin:/usr/local/lsof/bin:/usr/bin/X11:/opt/postfix:/usr/kerberos/bin:/usr/X11R6/bin
+    aliases='/etc/mail/aliases';
+    key_progs='/usr/bin/passwd /usr/bin/login /usr/bin/ps /usr/bin/netstat';
+    snmp='/etc/SnmpAgent.d/snmpd.conf';
+    crontab='crontab -l root';
+    ntp='/etc/ntp.conf';
+    
 elif [ "$os" = "Linux" ] ; then
-  echo='/bin/echo -e'
-  ps='ps -ef';
-  proc1='/bin/ps -e -o comm ';
-  fstab='/etc/fstab';
-  shares='/etc/exports';
-  lsof='lsof -i';
-  mount='mount';
-  PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/X11R6/bin:/usr/lib/saint/bin:/opt/postfix:/usr/lib/java/jre/bin
-  aliases='/etc/aliases';
-  key_progs='/usr/bin/passwd /bin/login /bin/ps /bin/netstat';
-  snmp='/etc/snmp/snmpd.conf';
-  crontab='crontab -u root -l';
-  ntp='/etc/ntp.conf';
-
+    echo='/bin/echo -e'
+    ps='ps -ef';
+    proc1='/bin/ps -e -o comm ';
+    fstab='/etc/fstab';
+    shares='/etc/exports';
+    lsof='lsof -i';
+    mount='mount';
+    PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/X11R6/bin:/usr/lib/saint/bin:/opt/postfix:/usr/lib/java/jre/bin
+    aliases='/etc/aliases';
+    key_progs='/usr/bin/passwd /bin/login /bin/ps /bin/netstat';
+    snmp='/etc/snmp/snmpd.conf';
+    crontab='crontab -u root -l';
+    ntp='/etc/ntp.conf';
+    
 	## Find out which distribution we are using
-	if [ -f  /etc/redhat-release ] ; then
-		dist="redhat"
-	elif [ -f  /etc/redhat-release ] ; then
-		dist="suse"
-	elif [ -f  /etc/lsb-release ] ; then
+    if [ -f  /etc/redhat-release ] ; then
+	dist="redhat"
+    elif [ -f  /etc/redhat-release ] ; then
+	dist="suse"
+    elif [ -f  /etc/lsb-release ] ; then
 		##Debian and derivates (Ubuntu)
-		dist="debian"
-	else
-		dist=""
-	fi
-
+	dist="debian"
+    else
+	dist=""
+    fi
+    
 elif [ "$os" = "OpenBSD" ] ; then
-  echo='/bin/echo'
-  ps='ps -auwx';
-  proc1='/bin/ps -e -o comm ';
-  fstab='/etc/fstab';
-  shares='/etc/exports';
-  lsof='lsof -i';
-  mount='mount';
-  PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/X11R6/bin
-  aliases='/etc/aliases';
-  key_progs='/bin/passwd /bin/login /bin/ps /bin/netstat';
-  snmp='/etc/snmp/snmpd.conf';
-  crontab='crontab -l root';
-  ntp='/etc/inet/ntp.conf';
-
+    echo='/bin/echo'
+    ps='ps -auwx';
+    proc1='/bin/ps -e -o comm ';
+    fstab='/etc/fstab';
+    shares='/etc/exports';
+    lsof='lsof -i';
+    mount='mount';
+    PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/usr/X11R6/bin
+    aliases='/etc/aliases';
+    key_progs='/bin/passwd /bin/login /bin/ps /bin/netstat';
+    snmp='/etc/snmp/snmpd.conf';
+    crontab='crontab -l root';
+    ntp='/etc/inet/ntp.conf';
+    
 fi
 
 ## common programs
@@ -153,13 +153,13 @@ sum='/usr/bin/sum';
 
 if [ -f /opt/sfw/bin/sha1sum ] ; then
 	## Solaris
-	md5sum="/opt/sfw/bin/sha1sum"
+    md5sum="/opt/sfw/bin/sha1sum"
 elif [ -f /usr/bin/sha1sum ] ; then
 	## Linux
-	md5sum="/usr/bin/sha1sum"
+    md5sum="/usr/bin/sha1sum"
 else 
 	##Didn't find it
-	md5sum="/bin/false"
+    md5sum="/bin/false"
 fi
 
 ###---------- End Setup -------
@@ -167,19 +167,19 @@ fi
 ###---------- Functions -------
 
 check_err () {
-  if [ "$*" != "0" ] ; then
-    $echo "SCRIPT $0 ABORTED: error." >>$f 2>&1
-    send_results;
-    exit 1;
-  fi
+    if [ "$*" != "0" ] ; then
+	$echo "SCRIPT $0 ABORTED: error." >>$f 2>&1
+	send_results;
+	exit 1;
+    fi
 }
 run () {
-  if [ $FILE = "1" ]    ; then $echo "Running command: $*" >>$f;   fi
-  if [ $VERBOSE = "1" ] ; then $echo "Running command: $*";        fi
-  if [ $FILE = "1" ]    ; then $*    >> $f;
-  else
-    $*;
-  fi
+    if [ $FILE = "1" ]    ; then $echo "Running command: $*" >>$f;   fi
+    if [ $VERBOSE = "1" ] ; then $echo "Running command: $*";        fi
+    if [ $FILE = "1" ]    ; then $*    >> $f;
+    else
+	$*;
+    fi
 }
 
 #doc () {
@@ -213,11 +213,11 @@ $echo ""
 $echo "Release Info:"
 $echo ""
 if   [ "$os" = "Linux" ] ; then 
-  cat /etc/lsb-release 2>/dev/null
-  cat /etc/redhat-release  2>/dev/null
-  cat /etc/SuSE-release 2>/dev/null
+    cat /etc/lsb-release 2>/dev/null
+    cat /etc/redhat-release  2>/dev/null
+    cat /etc/SuSE-release 2>/dev/null
 elif   [ "$os" = "SunOS" ] ; then
-  cat /etc/release 2>/dev/null
+    cat /etc/release 2>/dev/null
 fi
 
 #+ Uptime
@@ -228,42 +228,42 @@ run uptime
 $echo ""
 $echo ">>>>> Hardware Info ------"
 if   [ "$os" = "Linux" ] ; then 
-	$echo "=======Bios========================"
-	/usr/sbin/dmidecode --type 0
-	$echo ""
-	$echo "=======CPU Info========================"
-	/bin/cat /proc/cpuinfo |/bin/grep -E "processor|model name"
-	$echo ""
-	$echo "=======Memory Info========================"
-	/usr/sbin/dmidecode --type 6 |/bin/grep -E "Socket|Type|Installed"
-	$echo ""
-	run /usr/bin/free -m
-	$echo "=========================================="
-	$echo ""
-	$echo "For more hw information run lspci, lsdev and lsusb"
-	$echo "\n\n"
-
+    
+    $echo "=======Bios========================"
+    /usr/sbin/dmidecode --type 0
+    $echo ""
+    $echo "=======CPU Info========================"
+    /bin/cat /proc/cpuinfo |/bin/grep -E "processor|model name"
+    $echo ""
+    $echo "=======Memory Info========================"
+    /usr/sbin/dmidecode --type 6 |/bin/grep -E "Socket|Type|Installed"
+    $echo ""
+    run /usr/bin/free -m
+    $echo "=========================================="
+    $echo ""
+    $echo "For more hw information run lspci, lsdev and lsusb"
+    $echo "\n\n"
+    
 	## Is SuSE siga installed? We can list the entire system HW/SW config
-	if [ "$dist" = "suse" ]  
-		$echo " ========= suse siga"
-		siga 2>/dev/null
-		cat < /tmp/siga/siga.txt 2>/dev/null
-	fi
-
-	
+    if [ "$dist" = "suse" ]  ; then
+	$echo " ========= suse siga"
+	siga 2>/dev/null
+	cat < /tmp/siga/siga.txt 2>/dev/null
+    fi
+    
 elif   [ "$os" = "SunOS" ] ; then
-	run /usr/sbin/prtdiag
-	$echo "\n\n>>>>>  Eprom settings --------- "
-	/usr/sbin/eeprom -v | egrep "boot|security"
-	$echo ""
-	$echo "Checking swap:"
-	run swap -l
-	$echo "\n\n"
-	
+    run /usr/sbin/prtdiag
+    $echo "\n\n>>>>>  Eprom settings --------- "
+    /usr/sbin/eeprom -v | egrep "boot|security"
+    $echo ""
+    $echo "Checking swap:"
+    run swap -l
+    $echo "\n\n"
+    
 elif   [ "$os" = "HP-UX" ] ; then
-	/bin/false ##Place holder
+    /bin/false ##Place holder
 elif   [ "$os" = "OpenBSD" ] ; then
-	/bin/false ##Place holder
+    /bin/false ##Place holder
 fi
 
 #+ Filesystem Info
@@ -273,9 +273,9 @@ $echo     "          Are options like ro,logging,nosuid,size used?"
 $echo ""
 
 if   [ "$os" = "Linux" ] || [ "$rel" = "5.10" ] ; then 
-	run /bin/df -h
+    run /bin/df -h
 else 
-	run /bin/df -k
+    run /bin/df -k
 fi
 $echo ""
 run mount
@@ -288,9 +288,9 @@ $echo "Logged on users:"
 w
 
 if   [ "$os" = "SunOS" ] ; then 
-  	$echo "-- whodo  -----------"
-  	run whodo
-	$echo ""
+    $echo "-- whodo  -----------"
+    run whodo
+    $echo ""
 fi
 
 #+ Accounts checks
@@ -309,81 +309,81 @@ niscat passwd 2>/dev/null
 
 $echo "\nAccounts with no password:"
 if   [ "$os" = "SunOS" ] ; then 
-	run logins -p -x
+    run logins -p -x
 elif [ "$os" = "HP-UX" ] ; then
-	run logins -p -x
+    run logins -p -x
 else 
-	if [ -f /etc/shadow ] ; then
-		$echo `awk -F: '{if ($2=="") print $1}' /etc/shadow`
-	else
-		$echo `awk -F: '{if ($2=="") print $1}' /etc/passwd`
-	fi
+    if [ -f /etc/shadow ] ; then
+	$echo `awk -F: '{if ($2=="") print $1}' /etc/shadow`
+    else
+	$echo `awk -F: '{if ($2=="") print $1}' /etc/passwd`
+    fi
 fi      
 
 $echo "\nAccounts with passwords (not blocked or empty)"
 if   [ "$os" != "HP-UX" ] ; then
-  $echo `awk -F: '{if (($2!="*") && ($2!="") && ($2!="!") && ($2!="!!") && ($2!="NP") && ($2!="*LK*")) print $1}' /etc/shadow`
+    $echo `awk -F: '{if (($2!="*") && ($2!="") && ($2!="!") && ($2!="!!") && ($2!="NP") && ($2!="*LK*")) print $1}' /etc/shadow`
 else
-  $echo "\nAccounts with passwords (not blocked or empty)"
-  $echo `awk -F: '{if (($2!="*") && ($2!="") && ($2!="!") && ($2!="!!") && ($2!="NP") && ($2!="*LK*")) print $1}' /etc/passwd`
+    $echo "\nAccounts with passwords (not blocked or empty)"
+    $echo `awk -F: '{if (($2!="*") && ($2!="") && ($2!="!") && ($2!="!!") && ($2!="NP") && ($2!="*LK*")) print $1}' /etc/passwd`
 fi
 
 ##Perl One liner to find users with duplicated uids
 ##http://linuxgazette.net/issue85/okopnik.html
 ##Todo: Check for perl at the begining and / or find a better way to do this
 if [ "$os" != "HP-UX" && "$os" != "SunOS" ] ; then
-	if [ -f /usr/bin/perl ] ; then
-		$echo "\nDuplicate Accounts"
-		/usr/bin/perl -F: -walne'$h{$F[2]}.="$F[0] ";END{$h{$_}=~/ ./&&print"$_: $h{$_}"for keys%h}' /etc/passwd
-	fi
-elif   [ "$os" = "HP-UX" ] ; then
- 	$echo "\nDuplicate Accounts"
- 	run logins -d -x -m
-
-elif   [ "$os" = "SunOS" ] ; then
+    if [ -f /usr/bin/perl ] ; then
 	$echo "\nDuplicate Accounts"
-	run logins -d -x -m
-
+	/usr/bin/perl -F: -walne'$h{$F[2]}.="$F[0] ";END{$h{$_}=~/ ./&&print"$_: $h{$_}"for keys%h}' /etc/passwd
+    fi
+elif   [ "$os" = "HP-UX" ] ; then
+    $echo "\nDuplicate Accounts"
+    run logins -d -x -m
+    
+elif   [ "$os" = "SunOS" ] ; then
+    $echo "\nDuplicate Accounts"
+    run logins -d -x -m
+    
 fi
 
 #+ Passwd and shadow checks
 $echo "\nPassword settings:"
 if   [ "$os" = "SunOS" ] ; then 
- 	$echo " /etc/default/passwd settings: "
-	egrep -v "$comments" /etc/default/passwd
-	$echo "  nsswitch.conf:"
-	$echo "nsswitch.conf: `egrep '^passwd' /etc/nsswitch.conf`"
-	$echo "nsswitch.conf: `egrep '^group' /etc/nsswitch.conf`"
-	$echo "nsswitch.conf: `egrep '^hosts' /etc/nsswitch.conf`"
-	$echo "nsswitch.conf: `egrep '^netgroup' /etc/nsswitch.conf`"
-	$echo "Check dormant/invalid accounts /expiry dates: 'passwd -sa'"
-	run passwd -sa
-
+    $echo " /etc/default/passwd settings: "
+    egrep -v "$comments" /etc/default/passwd
+    $echo "  nsswitch.conf:"
+    $echo "nsswitch.conf: `egrep '^passwd' /etc/nsswitch.conf`"
+    $echo "nsswitch.conf: `egrep '^group' /etc/nsswitch.conf`"
+    $echo "nsswitch.conf: `egrep '^hosts' /etc/nsswitch.conf`"
+    $echo "nsswitch.conf: `egrep '^netgroup' /etc/nsswitch.conf`"
+    $echo "Check dormant/invalid accounts /expiry dates: 'passwd -sa'"
+    run passwd -sa
+    
 elif [ "$os" = "OpenBSD" ] ; then 
-	$echo "/etc/passwd.conf :"
-	egrep -v "$comments" /etc/passwd.conf
-
+    $echo "/etc/passwd.conf :"
+    egrep -v "$comments" /etc/passwd.conf
+    
 elif [ "$os" = "HP-UX" ] ; then 
-	$echo "/etc/pam.conf :"
-	egrep -v "$comments" /etc/pam.conf
-
+    $echo "/etc/pam.conf :"
+    egrep -v "$comments" /etc/pam.conf
+    
 else
-	$echo "/etc/pam.d/passwd :"
-	egrep -v "$comments" /etc/pam.d/passwd
+    $echo "/etc/pam.d/passwd :"
+    egrep -v "$comments" /etc/pam.d/passwd
 fi
 
 if   [ "$os" = "Linux" ] ; then 
-	$echo "Checking for dormant/invalid with: pwck -r and grpck -r"
-	pwck -r
-	grpck -r
+    $echo "Checking for dormant/invalid with: pwck -r and grpck -r"
+    pwck -r
+    grpck -r
 fi
 
 
 if [ $EXTENDED = "1" ] ; then 
-  $echo "\n\n>>>>> Extended audit: add shadow file ....";        
-  cat /etc/shadow    
-  $echo "\n\n>>>>> Extended audit: add passwd file ....";        
-  cat /etc/passwd    
+    $echo "\n\n>>>>> Extended audit: add shadow file ....";        
+    cat /etc/shadow    
+    $echo "\n\n>>>>> Extended audit: add passwd file ....";        
+    cat /etc/passwd    
 fi
 
 ##    * Account settings
@@ -399,21 +399,18 @@ egrep -v "$comments" /sbin/init.d/*/* 2>/dev/null | grep umask
 egrep -v "$comments" /etc/init.d/*   2>/dev/null | grep umask
 egrep -v "$comments" /etc/init.d/*/* 2>/dev/null | grep umask
 if [ "$os" = "SunOS" ] ; then
-  $echo "\nDefault system umask. Contents of /etc/default/init:"
-  egrep -v "$comments" /etc/default/init
+    $echo "\nDefault system umask. Contents of /etc/default/init:"
+    egrep -v "$comments" /etc/default/init
 fi
-
-
-
 
 $echo "\nHome directory and SSH trust permissions: (watch out for world/group writeable)"
 #awk -F: '{print $6}' /etc/passwd | uniq| xargs ls -ld 2>/dev/null
 for h in `awk -F: '{print $6}' /etc/passwd | uniq` ; do
- 	ls -ald $h
-	if [ -f $h/.ssh/authorized_keys ] ; then
-		ls -ald $h/.ssh/authorized_keys
-		cat $h/.ssh/authorized_keys
-	fi
+    ls -ald $h
+    if [ -f $h/.ssh/authorized_keys ] ; then
+	ls -ald $h/.ssh/authorized_keys
+	cat $h/.ssh/authorized_keys
+    fi
 done
 
 $echo "/etc/shells:"
@@ -424,18 +421,18 @@ egrep -v "$comments" /etc/sudoers 2>/dev/null
 
 $echo "\nConsole security..."
 if     [ "$os" = "HP-UX" ] ; then 
-	$echo "root is allowed to logon to the following (/etc/securetty) -"
-	egrep -v "$comments" /etc/securetty 2>/dev/null
-
+    $echo "root is allowed to logon to the following (/etc/securetty) -"
+    egrep -v "$comments" /etc/securetty 2>/dev/null
+    
 elif   [ "$os" = "SunOS" ] ; then 
-	$echo "/etc/default/login :"
-	egrep -v "$comments" /etc/default/login
-
+    $echo "/etc/default/login :"
+    egrep -v "$comments" /etc/default/login
+    
 elif   [ "$os" = "Linux" ] ; then 
-	$echo "root is allowed to logon to the following (/etc/securetty) -"
-	egrep -v "$comments" /etc/securetty 2>/dev/null
-	grep securetty /etc/pam.d/login 2>/dev/null
-	grep ROOT_LOGIN_REMOTE /etc/rc.config 2>/dev/null
+    $echo "root is allowed to logon to the following (/etc/securetty) -"
+    egrep -v "$comments" /etc/securetty 2>/dev/null
+    grep securetty /etc/pam.d/login 2>/dev/null
+    grep ROOT_LOGIN_REMOTE /etc/rc.config 2>/dev/null
 fi
 
 ##*Networking Information*
@@ -455,11 +452,11 @@ $echo ""; $echo ""
 ##  * Interfaces
 $echo "Interfaces:"
 if   [ "$os" = "HP-UX" ] ; then 
-  lanscan
-  ifconfig lan0;
-  ifconfig lan1 2>/dev/null;
+    lanscan
+    ifconfig lan0;
+    ifconfig lan1 2>/dev/null;
 else
-  ifconfig -a;
+    ifconfig -a;
 fi
 ##  * Statistics
 $echo "\nInterface statistics:"
@@ -474,83 +471,82 @@ netstat -a
 ##  * Firewalls
 $echo "Local firewall configuration:\n" 
 if   [ "$os" = "Linux" ] ; then 
-	if  [ -f  /sbin/iptables ] : then
+    if  [ -f  /sbin/iptables ] ; then
 		## iptables kernel +2.4
-		run /sbin/iptables -L -vn
+	run /sbin/iptables -L -vn
 		## show the static script
 		##Redhat
-		$echo "  /etc/sysconfig/iptables:"
-		cat /etc/sysconfig/iptables
-		$echo "\n  /etc/sysconfig/iptables-config:"
-		cat /etc/sysconfig/iptables-config
-
-	elif [ -f  /sbin/iptables ] : then
+	$echo "  /etc/sysconfig/iptables:"
+	cat /etc/sysconfig/iptables
+	$echo "\n  /etc/sysconfig/iptables-config:"
+	cat /etc/sysconfig/iptables-config
+	
+    elif [ -f  /sbin/iptables ] ; then
 		# iptables kernel 2.0 - 2.2
-		run /sbin/ipchains -L -vn
-	fi
-
-
+	run /sbin/ipchains -L -vn
+    fi
+    
+    
 elif   [ "$os" = "SunOS" ] ; then
 	#ipf
-	if [ -f /usr/sbin/ipfstat ] ; then
+    if [ -f /usr/sbin/ipfstat ] ; then
 	run /usr/sbin/ipfstat -i
 	run /usr/sbin/ipfstat -o
 	run /usr/sbin/ipfstat
-	fi
-
+    fi
+    
 	## Detect Sun's Sunscreen Firewall
-	if   [ "$os" = "SunOS" ] ; then
-		ssadm=/opt/SUNWicg/SunScreen/bin/ssadm
-		policy=`$ssadm active 2>/dev/null|grep Active|awk '{print $5}'| sed 's/\.[0-9]*//g' `
-		[ $? = 0 ] && $ssadm edit $policy -c "list rule";
-	fi
-
+    if   [ "$os" = "SunOS" ] ; then
+	ssadm=/opt/SUNWicg/SunScreen/bin/ssadm
+	policy=`$ssadm active 2>/dev/null|grep Active|awk '{print $5}'| sed 's/\.[0-9]*//g' `
+	[ $? = 0 ] && $ssadm edit $policy -c "list rule";
+    fi
+    
 elif   [ "$os" = "HP-UX" ] ; then
-/bin/false ## Place holder
+    /bin/false ## Place holder
 ##Todo: HP-UX firewall
 elif   [ "$os" = "OpenBSD" ] ; then
 ##Todo: OpenBSD firewall
-/bin/false ## Place holder
+    /bin/false ## Place holder
 fi
-
 
 
 ##*Kernel + Process Info*
 $echo ">>>>> Kernel + Process Info ------"
 ##  * Kernel Info
 if   [ "$os" = "Linux" ] ; then 
-  $echo "\nLinux security settings:"
-  files="/etc/security/* /etc/rc.config"
-  for f in $files ; do
-    if [ -f $f ] ; then 
-      $echo "\nLinux Security config... $f .."
-      egrep -v "$comments" $f
-    fi
-  done;
-
-  $echo "\n>>>>> Linux: kernel parameters --"
-  for f in net.ipv4.icmp_echo_ignore_all net.ipv4.icmp_echo_ignore_broadcasts net.ipv4.conf.all.accept_source_route net.ipv4.conf.all.send_redirects net.ipv4.ip_forward net.ipv4.conf.all.forwarding net.ipv4.conf.all.mc_forwarding net.ipv4.conf.all.rp_filter net.ipv4.ip_always_defrag net.ipv4.conf.all.log_martians; do
-
+    $echo "\nLinux security settings:"
+    files="/etc/security/* /etc/rc.config"
+    for f in $files ; do
+	if [ -f $f ] ; then 
+	    $echo "\nLinux Security config... $f .."
+	    egrep -v "$comments" $f
+	fi
+    done;
+    
+    $echo "\n>>>>> Linux: kernel parameters --"
+    for f in net.ipv4.icmp_echo_ignore_all net.ipv4.icmp_echo_ignore_broadcasts net.ipv4.conf.all.accept_source_route net.ipv4.conf.all.send_redirects net.ipv4.ip_forward net.ipv4.conf.all.forwarding net.ipv4.conf.all.mc_forwarding net.ipv4.conf.all.rp_filter net.ipv4.ip_always_defrag net.ipv4.conf.all.log_martians; do
+	
      #echo `sysctl $f` 2>/dev/null
-     sysctl $f 2>/dev/null
-  done
-
-  if [ $EXTENDED = "1" ] ; then
-    $echo "\n>>>>> Linux: kernel modules (modprobe -c -l) --"
-    run modprobe -c -l
-  fi
-
+	sysctl $f 2>/dev/null
+    done
+    
+    if [ $EXTENDED = "1" ] ; then
+	$echo "\n>>>>> Linux: kernel modules (modprobe -c -l) --"
+	run modprobe -c -l
+    fi
+    
 fi
 
 if   [ "$os" = "HP-UX" ] ; then 
-  $echo "\n>>>>> /stand/system contents--"
-  egrep -v '^\*|^$' /stand/system
-
-  $echo "\n>>>>> ndd parameters --"
-
-  $echo "\narp_cleanup_interval (should be ~6000)=`ndd /dev/arp arp_cleanup_interval`"
-  $echo "\nudp_def_ttl (should be ~128)=`ndd /dev/arp udp_def_ttl`"
-
+    $echo "\n>>>>> /stand/system contents--"
+    egrep -v '^\*|^$' /stand/system
+    
+    $echo "\n>>>>> ndd parameters --"
+    
+    $echo "\narp_cleanup_interval (should be ~6000)=`ndd /dev/arp arp_cleanup_interval`"
+    $echo "\nudp_def_ttl (should be ~128)=`ndd /dev/arp udp_def_ttl`"
+    
   $echo "\ntcp values - Desired values : tcp_keepalive_interval=3600000 tcp_keepalive_detached_interval=60000 tcp_time_wait_interval=30000 tcp_syn_rcvd_max=500 tcp_conn_req_max=256 tcp_text_in_resets=0"
   $echo "tcp values - actual values : "
   for f in tcp_keepalive_interval tcp_keepalive_detached_interval tcp_time_wait_interval tcp_syn_rcvd_max tcp_conn_req_max tcp_text_in_resets ; do
@@ -1087,12 +1083,12 @@ elif [ "$os" = "Linux" ] ; then
 #  $echo "\n Auto start daemons:"
 #  run chkconfig --list|grep on
   $echo "\n Package DB:"
-  run rpm --verify -a -i --nofiles
+  #run rpm --verify -a -i --nofiles
 ##Todo: implement en RH/Fedora/CentOS style using yum
   # Debian based
-  run apt-get check
-  run apt-get update -s
-  run apt-get upgrade -s
+  #run apt-get check
+  #run apt-get update -s
+  #run apt-get upgrade -s
 
 elif [ "$os" = "OpenBSD" ] ; then 
   pkg_info;
