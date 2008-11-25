@@ -13,12 +13,12 @@ Making one giant file makes the results hard to read, I propose the following st
 Create a directory with the following naming format:  hostname-YYYYMMDD-HHMM
 
 In the directory create the following files and directories:
-* lusas-basic.log: With the basic log, this includes the test from sections 1-4
-* services: directory which contains a subdirectory for each service
-* service-dir:
-  * lusas-<service name>.log: main logfile
-  * copy of the recompiled information: config files, test results, etc
-* software.log: file with the output of the install packages
-* patches.log: patchlevel information
-* patches-pending.log: shows a list of the patches pending to be installed (if possible to generate  locally)
-* logs: directory that contains log information
+  * lusas-basic.log: With the basic log, this includes the test from sections 1-4
+  * services: directory which contains a subdirectory for each service
+  * service-dir:
+    * lusas-<service name>.log: main logfile
+    * copy of the recompiled information: config files, test results, etc
+  * software.log: file with the output of the install packages
+  * patches.log: patchlevel information
+  * patches-pending.log: shows a list of the patches pending to be installed (if possible to generate  locally)
+  * logs: directory that contains log information
