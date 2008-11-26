@@ -20,8 +20,9 @@
 #   Set EXTENDED=1 if you want to include password hashes for cracking.
 #
 # USAGE: 
-#  ksh/sh/bash shell:   nice sh audit1.sh > `uname -n`.audit1.log 2>&1 &
+#  ksh/sh/bash shell:   nice sh lusas-basic.sh > `uname -n`.audit1.log 2>&1 &
 #  To follow progress:  tail -f `uname -n`.audit1.log
+#  ./lusas-basic.sh > lusas-`uname -n`-`date "+%F-%H%M.log"` 2>&1 &
 #
 #  Example cron entry to run on 20th July and mail results:
 #    0 0 20 07 * /secure/audit1.sh 2>&1 |mailx -s "`uname -n` audit1" root
@@ -187,8 +188,7 @@ run () {
 #  if [ $VERBOSE_SUM = "1" ] ; then $echo "$*";         fi
 #}
 
-###---------- End Functions ---case 
-----
+###---------- End Functions ---case ----
 
 ###---------- Main -------
 
@@ -300,7 +300,7 @@ if   [ "$os" = "SunOS" ] ; then
 fi
 
 ###  * Accounts checks
-$echo "---------- Accounts checks ----------\n"
+$echo "\n---------- Accounts checks ----------\n"
 $echo "Account, password and shadow checks"
 $echo "Number of accounts: `wc -l /etc/passwd`"
 $echo ""
@@ -338,7 +338,7 @@ fi
 ##Perl One liner to find users with duplicated uids
 ##http://linuxgazette.net/issue85/okopnik.html
 ##Todo: Check for perl at the begining and / or find a better way to do this
-if [ "$os" != "HP-UX" && "$os" != "SunOS" ] ; then
+if [ "$os" != "HP-UX" ] && [ "$os" != "SunOS" ] ; then
     if [ -f /usr/bin/perl ] ; then
 	$echo "\nDuplicate Accounts"
 	/usr/bin/perl -F: -walne'$h{$F[2]}.="$F[0] ";END{$h{$_}=~/ ./&&print"$_: $h{$_}"for keys%h}' /etc/passwd
@@ -363,7 +363,7 @@ if   [ "$os" = "SunOS" ] ; then
     $echo "nsswitch.conf: `egrep '^group' /etc/nsswitch.conf`"
     $echo "nsswitch.conf: `egrep '^hosts' /etc/nsswitch.conf`"
     $echo "nsswitch.conf: `egrep '^netgroup' /etc/nsswitch.conf`"
-    $echo "Check dormant/invalid accounts /expiry dates: 'passwd -sa'"
+    $echo "\nCheck dormant/invalid accounts /expiry dates: 'passwd -sa'"
     run passwd -sa
     
 elif [ "$os" = "OpenBSD" ] ; then 
@@ -380,8 +380,9 @@ else
 fi
 
 if   [ "$os" = "Linux" ] ; then 
-    $echo "Checking for dormant/invalid with: pwck -r and grpck -r"
+    $echo "Checking for dormant/invalid with: pwck -r"
     pwck -r
+    $echo "\n and grpck -r"
     grpck -r
 fi
 
@@ -394,8 +395,9 @@ if [ $EXTENDED = "1" ] ; then
 fi
 
 ###    * Account settings
+$echo "\n\n"
 $echo "---------- Account settings ----------\n"
-$echo "\n\nEnvironment variables and PATH:"
+$echo "\nEnvironment variables and PATH:"
 $echo "(check especially for '.' in the root PATH)"
 env
 echo $PATH
@@ -421,13 +423,13 @@ for h in `awk -F: '{print $6}' /etc/passwd | uniq` ; do
     fi
 done
 
-$echo "/etc/shells:"
+$echo "\n/etc/shells:"
 egrep -v "$comments" /etc/shells    2>/dev/null
 
-$echo "\nsudo: /etc/sudoers..."
+$echo "\nsudo: /etc/sudoers:"
 egrep -v "$comments" /etc/sudoers 2>/dev/null
 
-$echo "\nConsole security..."
+$echo "\nConsole security:"
 if     [ "$os" = "HP-UX" ] ; then 
     $echo "root is allowed to logon to the following (/etc/securetty) -"
     egrep -v "$comments" /etc/securetty 2>/dev/null
@@ -444,16 +446,17 @@ elif   [ "$os" = "Linux" ] ; then
 fi
 
 ###*Networking Information*
+$echo "\n\n"
 $echo ">>>>>>>>>> Networking Information ----------"
 
 ###  * Host info
 $echo "---------- Host info ----------\n"
 
-$echo "/etc/nsswitch.conf - hosts entry:"
+$echo "\n/etc/nsswitch.conf - hosts entry:"
 grep hosts /etc/nsswitch.conf 
-$echo "/etc/resolv.conf :"
+$echo "\n/etc/resolv.conf :"
 egrep -v "$comments" /etc/resolv.conf
-$echo "/etc/hosts :"
+$echo "\n/etc/hosts :"
 egrep -v "$comments" /etc/hosts
 $echo ""; $echo ""
 
@@ -468,14 +471,14 @@ else
     ifconfig -a;
 fi
 
-###  * Statistics
-$echo "\n---------- Statistics ----------\n"
-#$echo "\nInterface statistics:"
+###  * Interface Statistics
+$echo "\n---------- Interface Statistics ----------\n"
+
 netstat -in;
 
 ###  * Routing
 $echo "\n---------- Routing ----------\n"
-#$echo "\nRouting:"
+
 netstat -rn;
 
 ###  * Ports and sockets
@@ -494,16 +497,15 @@ if   [ "$os" = "Linux" ] ; then
 	run /sbin/iptables -L -vn
 		## show the static script
 		##Redhat
-	$echo "  /etc/sysconfig/iptables:"
-	cat /etc/sysconfig/iptables
+	$echo "\n  /etc/sysconfig/iptables:"
+	egrep -v "$comments" /etc/sysconfig/iptables 2> /dev/null
 	$echo "\n  /etc/sysconfig/iptables-config:"
-	cat /etc/sysconfig/iptables-config
+	egrep -v "$comments" /etc/sysconfig/iptables-config 2> /dev/null
 	
-    elif [ -f  /sbin/iptables ] ; then
-		# iptables kernel 2.0 - 2.2
+    elif [ -f  /sbin/ipchains ] ; then
+		# ipchains kernel 2.0 - 2.2
 	run /sbin/ipchains -L -vn
     fi
-    
     
 elif   [ "$os" = "SunOS" ] ; then
 	#ipf
@@ -530,6 +532,7 @@ fi
 
 
 ###*Kernel, Process, devices, and ports Info*
+$echo "\n\n"
 $echo ">>>>>>>>>> Kernel, Process, devices, and ports Info ----------"
 
 ###  * Kernel Info
@@ -554,7 +557,10 @@ if   [ "$os" = "Linux" ] ; then
     
     if [ $EXTENDED = "1" ] ; then
 	$echo "\n Linux: kernel modules (modprobe -c -l) --"
-	run modprobe -c -l
+	##Todo: Linux Kernel Modules - Why are we doing this?
+	#run modprobe -c -l
+	## List active modules
+	run lsmod
     fi
     
 fi
@@ -617,7 +623,7 @@ if   [ "$os" = "SunOS" ] ; then
 fi
 
 ###  * Process Info
-$echo "---------- Process Info ----------\n"
+$echo "\n---------- Process Info ----------\n"
 
 ##Todo: Should these comments be here?
 #$echo "\n\n>>>>> Processes "
@@ -632,17 +638,18 @@ if [ "$os" = "SunOS" ] ; then
 fi
 
 ###  * List open files, devices, ports... 
-$echo "---------- List open files, devices, ports ----------\n"
+$echo "\n---------- List open files, devices, ports ----------\n"
 ##Todo: Should these comments be here?
 #$echo "\n\n>>>>> Is lsof installed? We can list open files, device, ports ---"
 which lsof 2>/dev/null
 $lsof;
 
 ###  * Check /dev/random
-$echo "---------- Check /dev/random ----------\n"
+$echo "\---------- Check /dev/random ----------\n"
 ls -l /dev/random 2>/dev/null
 
 ###*Services*
+$echo "\n\n"
 $echo ">>>>>>>>>> Services ----------"
 
 ##Todo: Most of this section should be writting to it's own subdirectory to maintain the audit readable
@@ -685,24 +692,24 @@ elif   [ "$os" = "OpenBSD" ] ; then
 fi
 
 ###  * Inetd services
-$echo "---------- Inetd services ----------\n"
+$echo "\n---------- Inetd services ----------\n"
 
-echo "Checking for inetd process.."
+echo "\nChecking for inetd process.."
 $ps | grep inetd
 if [ -f /etc/inetd.conf ] ; then
-  echo "Checking /etc/inetd.conf.."
+  echo "\nChecking /etc/inetd.conf.."
   egrep -v "$comments" /etc/inetd.conf
 fi;
 if [ -f /etc/xinetd.conf ] ; then
-  echo "Checking /etc/xinetd.conf.."
+  echo "\nChecking /etc/xinetd.conf.."
   egrep -v "$comments" /etc/xinetd.conf
   ls -l /etc/xinetd.d
-  echo "Checking for enabled services in xinetd.."
+  echo "\nChecking for enabled services in xinetd.."
   egrep "disable.*no"  /etc/xinetd.d/*
 fi;
 
 ###  * TCP Wrappers
-$echo "---------- TCP Wrappers ----------\n"
+$echo "\n---------- TCP Wrappers ----------\n"
 $echo "\nTCP Wrappers, /etc/hosts.allow: "
 egrep -v "$comments" /etc/hosts.allow   2>/dev/null
 $echo "\t/etc/hosts.deny: "
@@ -710,20 +717,24 @@ egrep -v "$comments" /etc/hosts.deny    2>/dev/null
 
 
 ###  * Specific services tests: sendmail, postfix, apache, samba, mysql, postgreSQL, oracle
-$echo "---------- Specific services tests ----------\n"
+$echo "\n---------- Specific services tests ----------\n"
 ###    * SSH
 $echo "---------- SSH ----------\n"
 # SSH daemon version
 $ps | grep sshd
+
+$echo "\ndeamon version:"
 process=`${proc1} | sort | uniq | grep sshd`
 [ $? = 0 ] && $process -invalid 2>&1|head -2|tail -1;
 # SSH client version
+$echo "\nclient version:"
 ssh -V 2>&1
-##Todo: What is whereis
+
+$echo "\nWhere:"
 run whereis ssh
 
 
-$echo "Active SSHD config:"
+$echo "\nActive SSHD config:"
 files="/etc /etc/ssh /usr/local/etc /opt/openssh/etc /opt/ssh/etc"
 for f in $files ; do
   if [ -f $f/sshd_config ] ; then 
@@ -736,15 +747,16 @@ $echo ""
 ###    * SNMP
 $echo "---------- SNMP ----------\n"
 #$echo "\n\n>>>>> SNMP , config $snmp ------" 
-$echo "SNMP , config $snmp" 
+$echo "SNMP , config $snmp \n" 
 if [ -f $snmp ] ; then 
   egrep -v "$comments" $snmp
 fi
+$echo "\nIs the deamon running"
 $ps | grep snmp
 
 
 ###    * FTP
-$echo "---------- FTP ----------\n"
+$echo "\n---------- FTP ----------\n"
 
 $echo "\n/etc/ftpusers:"
 egrep -v "$comments" /etc/ftpusers  2>/dev/null
@@ -760,29 +772,28 @@ if [ -f /etc/inetd.conf ] ; then
   egrep ftpd /etc/inetd.conf 
 fi
 if [ -f /etc/xinetd.conf ] ; then
-  echo "Checking /etc/xinetd.d/*ftp* .."
+  echo "Checking /etc/xinetd.d/*ftp*:"
   ls -l /etc/xinetd.d/*ftp*
   cat /etc/xinetd.d/*ftp*
 fi;
 
 ###    * NTP
-$echo "---------- NTP ----------\n"
+$echo "\n---------- NTP ----------\n"
 
 $ps | grep ntpd
-$echo "ntp config - $ntp:"
+$echo "\nntp config - $ntp:"
 egrep -v "$comments" $ntp 2>/dev/null
 $echo ""
 run ntpq -p
-$echo ""
 
 
 ###    * RPC
-$echo "---------- RPC ----------\n"
+$echo "\n---------- RPC ----------\n"
 
 rpcinfo -p localhost  2>/dev/null
 
 ###    * NFS
-$echo "---------- NFS ----------\n"
+$echo "\n---------- NFS ----------\n"
 $echo "\n NFS sharing:"
 egrep -v "$comments" $shares 2>/dev/null
 showmount -e          2>/dev/null
@@ -794,11 +805,11 @@ $mount | grep nfs
 
 
 ###    * NIS+
-$echo "---------- NIS+ ----------\n"
+$echo "\n---------- NIS+ ----------\n"
 nisls -l 2>/dev/null
 
 ###    * X11
-$echo "---------- X11 ----------\n"
+$echo "\n---------- X11 ----------\n"
 ##Todo: Check if X server is running
 
 $echo "\nX11 - xauth"  
@@ -810,19 +821,22 @@ echo "ls /etc/X*.hosts : `ls /etc/X*.hosts 2>/dev/null`"
 
 
 ###    * Samba
-$echo "---------- Samba ----------\n"
+$echo "\n---------- Samba ----------\n"
 
+$echo "deamon info:"
 $ps | grep smbd | egrep -v "grep smbd"
-# The next line does not work on HP-ux "audit1.sh[780]: 3833:  not found"
+
+##Todo: The next line does not work on HP-ux "audit1.sh[780]: 3833:  not found"
 process=`${proc1} | sort | uniq | grep smbd`
 [ $? = 0 ] && echo "Samba `$process -V`";
+
 ##Todo: smb Even though it's not running it's not a bad idea to check for it
 ##If there recommend to uninstall when not being used
 
 files="/var/log/samba /var/log.smb /var/log/log.smb"
 for f in $files ; do
   if [ -f $f ] ; then 
-    echo "\nsamba logs $f .."
+    $echo "\nsamba logs $f:"
     ls -l $f
   fi
 done;
@@ -837,7 +851,7 @@ for f in $files ; do
 done;
 
 ###    * BIND
-$echo "---------- BIND ----------\n"
+$echo "\n---------- BIND ----------\n"
 
 $ps | grep dnsmasq | egrep -v "grep dnsmasq"
 process=`${proc1} | sort | uniq | grep dnsmasq`
@@ -859,7 +873,7 @@ done;
 
 
 ###    * DHCP
-$echo "---------- DHCP ----------\n"
+$echo "\n---------- DHCP ----------\n"
 
 $ps | grep dhcpd| egrep -v "grep dhcpd"
 for f in `whereis dhcpd| awk -F: '{print $2}'` ; do ls -l $f;  done;
@@ -876,7 +890,7 @@ for f in $files ; do
 done
 
 ###    * LDAP
-$echo "---------- LDAP ----------\n"
+$echo "\n---------- LDAP ----------\n"
 
 $ps | grep slapd| egrep -v "grep slapd"
 for f in `whereis slapd| awk -F: '{print $2}'` ; do ls -l $f;  done;
@@ -900,19 +914,26 @@ for f in $files ; do
 done;
 
 ###    * Apache
-$echo "---------- Apache ----------\n"
+$echo "\n---------- Apache ----------\n"
 
+$echo "https Procesess:"
 $ps | grep httpsd| egrep -v "grep httpsd"
+$echo "\nhttps file permissions:"
 for f in `whereis httpsd| awk -F: '{print $2}'` ; do ls -l $f;  done;
 # Version http with SSL
 process=`${proc1} | sort | uniq | grep httpsd`
 [ $? = 0 ] && $process -v;
 
+$echo "http Procesess:"
 $ps | grep httpd| egrep -v "grep httpd"
+$echo "\nhttp file permissions:"
 for f in `whereis httpd| awk -F: '{print $2}'` ; do ls -l $f;  done;
+
 # Version httpd
+$echo "\nhttpd version:"
 process=`${proc1} | sort | uniq | grep httpd`
 [ $? = 0 ] && $process -v;
+
 
 ## Apache: config
 files="/usr/local/apache/conf /usr/local/apache2/conf /opt/apache/conf /etc/httpd /etc/httpd/conf /etc/apache /etc/apache2 /var/www/conf /opt/portal/apache/conf"
@@ -938,7 +959,7 @@ if [ -d /etc/apache2 ] ; then
 fi
 
 ## Apache: error logs
-files="/usr/local/apache /usr/local/apache2 /opt/apache /var/www /opt/portal/apache"
+files="/usr/local/apache /usr/local/apache2 /opt/apache /var/www /opt/portal/apache /var/log/httpd/"
 for f in $files/logs/error_log ; do
   if [ -f $f ] ; then 
     #$echo "\nhttpd logs... $f .."
@@ -962,7 +983,7 @@ for f in $files; do
 done;
 
 ###    * Syslog
-$echo "---------- Syslog ----------\n"
+$echo "\n---------- Syslog ----------\n"
 
 $echo "loghost alias in /etc/hosts:"
 grep loghost /etc/hosts
@@ -974,61 +995,64 @@ egrep  -v "$comments" /etc/syslog-ng/syslog-ng.conf      2>/dev/null
 egrep  -v "$comments" /usr/local/etc/syslog-ng.conf      2>/dev/null
 
 ###    * Cron
-$echo "---------- Cron ----------\n"
+$echo "\n---------- Cron ----------\n"
 
-$echo "\nroot cron:"
+$echo "root cron:"
 $crontab | egrep -v "$comments"
-$echo "\n"
+$echo ""
 
 if   [ "$os" = "SunOS" ] ; then 
-  $echo "/etc/cron.d/ :"
+  $echo "\n/etc/cron.d/ :"
   ls -l /etc/cron.d/
   cat /etc/cron.d/cron.allow 2>/dev/null
   cat /etc/cron.d/at.allow   2>/dev/null
-  echo "cron.deny:"
+  echo "\ncron.deny:"
   cat /etc/cron.d/cron.deny   2>/dev/null
-  echo "at.deny:"
+  echo "\nat.deny:"
   cat   /etc/cron.d/at.deny   2>/dev/null
 
 elif   [ "$os" = "Linux" ] ; then 
   $echo "/etc/cron.d/ :"
   ls -l /etc/cron.d/
-  ## TBD: show all files in cron.d ?
+  ##Todo: Show contents of /etc/cron.d ?
   cat /etc/cron.d/cron.allow 2>/dev/null
   cat /etc/cron.d/at.allow   2>/dev/null
-  $echo "cron.deny:"
+  $echo "\ncron.deny:"
   cat /etc/cron.d/cron.deny   2>/dev/null
-  $echo "at.deny:"
+  $echo "\nat.deny:"
   cat   /etc/cron.d/at.deny   2>/dev/null
 
 elif   [ "$os" = "HP-UX" ] ; then 
   tail -50 /var/adm/cron/log
-  $echo "cron.allow:"
+  $echo "\ncron.allow:"
   cat /var/adm/cron/cron.allow 2>/dev/null
-  $echo "at.allow:"
+  $echo "\nat.allow:"
   cat /var/adm/cron/at.allow   2>/dev/null
-  echo "cron.deny:"
+  echo "\ncron.deny:"
   cat /var/adm/cron/cron.deny   2>/dev/null
-  echo "at.deny:"
+  echo "\nat.deny:"
   cat /var/adm/cron/at.deny   2>/dev/null
 fi
 
 
 ###   * Mail Services
-$echo "---------- Mail Services ----------\n"
-$echo "\n\nList of mail boxes:"
+$echo "\n---------- Mail Services ----------\n"
+$echo "List of mail boxes:"
 ls -lt /var/mail/*
 
 $echo "\nChecking mail queue.."
 mailq
 
 ###      * Sendmail
-$echo "=---------- Sendmail ----------=\n"
+$echo "\n=---------- Sendmail ----------=\n"
 
 $echo "Sendmail process:"
 $ps | grep sendmail | egrep -v "grep sendmail"
 process=`${proc1} | sort | uniq | grep sendmail`
 [ $? = 0 ] && echo "Sendmail `what $process |egrep 'SunOS| main.c'`";
+##Todo: Check sendmail error in Linux
+#./lusas-basic.sh: line 1031: what: command not found
+
 $echo "\nmailhost alias in /etc/hosts:"
 grep mailhost /etc/hosts
 $echo "\nChecking $aliases for programs.."
@@ -1042,17 +1066,19 @@ $echo "\nChecking /etc/mail/relay-domains .."
 egrep  -v "$comments" /etc/mail/relay-domains 2>/dev/null
 
 ###      * Postfix
-$echo "=---------- Postfix ----------=\n"
+$echo "\n=---------- Postfix ----------=\n"
 
 $ps | grep smtpd | egrep -v "grep smtpd"
 if [ `whereis postfix|wc -w` -gt 1 ] ; then
   # postfix is installed
   $echo "\nPostfix non default settings:"
   postconf -n 2>&1
+
+  $echo "\nfile permissions:"
   for f in `whereis postfix| awk -F: '{print $2}'` ; do ls -ld $f;  done;
   for f in `whereis postmap| awk -F: '{print $2}'` ; do ls -ld $f;  done;
   $echo "\n"
-  postfix -v -v check 2>&1
+  run postfix -v -v check 2>&1
   $echo "\n"
 
   files="/etc/postfix/main.cf /etc/postfix/master.cf /etc/postfix/canonical /etc/postfix/recipient_canonical /etc/postfix/access /etc/postfix/virtual /etc/postfix/transport /etc/postfix/relocated /usr/local/postfix/etc/main.cf /usr/local/postfix/etc/master.cf /usr/local/postfix/etc/canonical /usr/local/postfix/etc/recipient_canonical /usr/local/postfix/etc/access /usr/local/postfix/etc/virtual /usr/local/postfix/etc/transport /usr/local/postfix/etc/relocated  "
@@ -1065,42 +1091,52 @@ if [ `whereis postfix|wc -w` -gt 1 ] ; then
 fi
 
 ###   * Database Servers
-$echo "---------- Database Servers ----------\n"
+$echo "\n---------- Database Servers ----------\n"
 ###      * mysql
 $echo "=---------- mysql ----------=\n"
 $echo "\nChecking mysql:"
 
+$echo "processes:"
 $ps | grep mysqld| egrep -v "grep mysqld"
-for f in `whereis mysqld| awk -F: '{print $2}'` ; do ls -l $f;  done;
+
+$echo "\nFile permissions:"
+if [ "$os" = "Linux" ] ; then
+	for f in `whereis mysqld| awk '{print $2}'` ; do ls -l $f;  done;
+else
+	for f in `whereis mysqld| awk -F: '{print $2}'` ; do ls -l $f;  done;
+fi
+
 # Version
+$echo "\nVersion:"
 process=`${proc1} | sort | uniq | grep mysqld`
 [ $? = 0 ] && $process -V 2>&1|head -1;
+
 
 files="/etc/my.cnf /etc/mysql/my.cnf"
 for f in $files; do
   if [ -f $f ] ; then 
-    $echo "Mysql config $f .."
+    $echo "\nMysql config $f .."
     egrep  -v "$comments" $f 2>/dev/null
   fi
 done;
 files="/usr/local/mysql/data/mysqld.log"
 for f in $files; do
   if [ -f $f ] ; then 
-    $echo "Mysql logs tail -50 $f .."
+    $echo "\nMysql logs tail -50 $f .."
     tail -50 $f | egrep  -v "$comments" 2>/dev/null
   fi
 done;
 files="/usr/local/mysql/data /mysqldata"
 for f in $files; do
   if [ -d $f ] ; then 
-    $echo "Mysql data directories $f .."
+    $echo "\nMysql data directories $f .."
     ls -al $f/* 2>/dev/null
   fi
 done;
 
 
 ###      * postgreSQL
-$echo "=---------- postgreSQL ----------=\n"
+$echo "\n=---------- postgreSQL ----------=\n"
 $ps | grep postgres| egrep -v "grep postgres"
 
 
@@ -1115,7 +1151,10 @@ $echo "---------- Installed software ----------\n"
 $echo "---------- Patch level ----------\n"
 $echo "\n\n Patches for $os  ------" 
 
-##Todo: Think if including pac to do the checks for us.  Or find a way to implement an online service for this
+##Todo: Patch level - Find a eficient way of doing this.
+# - pca http://www.par.univie.ac.at/solaris/pca/ is a great solution if we can bundle it in. 
+# We could bundle it with the latests patchdiag.xref so the dependencies go way down and no Internet is needed on the server
+
 if [ "$os" = "SunOS" ] ; then
   showrev -p                 
 
@@ -1142,11 +1181,21 @@ elif [ "$os" = "Linux" ] ; then
 #  run chkconfig --list|grep on
   $echo "\n Package DB:"
   #run rpm --verify -a -i --nofiles
-##Todo: implement en RH/Fedora/CentOS style using yum
-  # Debian based
-  #run apt-get check
-  #run apt-get update -s
-  #run apt-get upgrade -s
+
+
+##Todo: Pkg list for suse
+	if [ "$dist" = "redhat" ] ; then 
+		$echo "Package list:"
+		run rpm -qa --qf '%{NAME} %{VERSION}-%{RELEASE} %{ARCH}\n'
+
+		$echo "\nPending update:"
+		run yum check-update
+
+	elif [ "$dist" = "debian" ] ; then 
+		run apt-get check
+		run apt-get update -s
+		run apt-get upgrade -s
+	fi
 
 elif [ "$os" = "OpenBSD" ] ; then 
   pkg_info;
@@ -1158,11 +1207,10 @@ java -version 2>&1
 
 
 ###*Logs*
-$echo ">>>>>>>>>> Logs ----------"
+$echo "\n>>>>>>>>>> Logs ----------"
 
 ###  * Capture log files
 $echo "---------- Capture log files ----------\n"
-$echo "\n"
 date
 
 $echo "\nDiagnostic messages (dmesg) ------"
@@ -1233,12 +1281,12 @@ fi
 #  Are they automatically pruned / compressed? How often? 
 
 ###  * Grep for common errors
-$echo "---------- Grep for common errors ----------\n"
+$echo "---------- grep for common errors ----------\n"
 ###  * Check for log rotation
 $echo "---------- Check for log rotation ----------\n"
 
 ###*Virtualization*
-$echo ">>>>>>>>>> Virtualization ----------"
+$echo "\n>>>>>>>>>> Virtualization ----------"
 ###  * Check for Hypervisers and services
 $echo "---------- Check for Hypervisers and services ----------\n"
 
