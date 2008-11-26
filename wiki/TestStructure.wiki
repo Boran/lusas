@@ -30,7 +30,7 @@ After analiysing the scripts and what they do we decided that we could give a ni
 *Networking Information*
   * Host info
   * Interfaces
-  * Statistics
+  * Interface Statistics
   * Routing
   * Ports and sockets
   * Firewalls
