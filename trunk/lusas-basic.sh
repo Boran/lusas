@@ -71,6 +71,9 @@ os=`uname -s`
 rel=`uname -r`
 hw=`uname -m`
 
+##Record the start time to show it at the end
+start_time=`date`
+
 if [ "$os" = "SunOS" ] ; then
     echo='/usr/5bin/echo'
     ps='ps -ef';
@@ -358,7 +361,7 @@ $echo "\nPassword settings:"
 if   [ "$os" = "SunOS" ] ; then 
     $echo " /etc/default/passwd settings: "
     egrep -v "$comments" /etc/default/passwd
-    $echo "  nsswitch.conf:"
+    $echo "\n  nsswitch.conf:"
     $echo "nsswitch.conf: `egrep '^passwd' /etc/nsswitch.conf`"
     $echo "nsswitch.conf: `egrep '^group' /etc/nsswitch.conf`"
     $echo "nsswitch.conf: `egrep '^hosts' /etc/nsswitch.conf`"
@@ -510,14 +513,14 @@ if   [ "$os" = "Linux" ] ; then
 elif   [ "$os" = "SunOS" ] ; then
 	#ipf
     if [ -f /usr/sbin/ipfstat ] ; then
+	$echo ""
 	run /usr/sbin/ipfstat -i
 	run /usr/sbin/ipfstat -o
 	run /usr/sbin/ipfstat
     fi
     
 	## Detect Sun's Sunscreen Firewall
-    if   [ "$os" = "SunOS" ] ; then
-	ssadm=/opt/SUNWicg/SunScreen/bin/ssadm
+    if   [ "$os" = "SunOS" ] && [ -f  /opt/SUNWicg/SunScreen/bin/ssadm ]; then
 	policy=`$ssadm active 2>/dev/null|grep Active|awk '{print $5}'| sed 's/\.[0-9]*//g' `
 	[ $? = 0 ] && $ssadm edit $policy -c "list rule";
     fi
@@ -589,7 +592,7 @@ if   [ "$os" = "HP-UX" ] ; then
 fi
 
 if   [ "$os" = "SunOS" ] ; then 
-  $echo "\n\nSun: strong ISS tcp sequences?--"
+  $echo "Sun: strong ISS tcp sequences?--"
   egrep -v "$comments" /etc/default/inetinit 
 
   $echo "\n\nSun: /etc/system contents--"
@@ -643,6 +646,9 @@ $echo "\n---------- List open files, devices, ports ----------\n"
 #$echo "\n\n>>>>> Is lsof installed? We can list open files, device, ports ---"
 which lsof 2>/dev/null
 $lsof;
+##Todo: Check lsof parameters for sol 10
+#/opt/csw/bin/lsof: illegal option character: C
+
 
 ###  * Check /dev/random
 $echo "\---------- Check /dev/random ----------\n"
@@ -677,6 +683,7 @@ if   [ "$os" = "Linux" ] ; then
 
 elif   [ "$os" = "SunOS" ] ; then
 	if [ "$rel" = "5.10" ] ; then
+		$echo "Running services -----"
 		svcs
 	else
 		for i in `ls /etc/init.d/*`; do $i status; done
@@ -1281,9 +1288,9 @@ fi
 #  Are they automatically pruned / compressed? How often? 
 
 ###  * Grep for common errors
-$echo "---------- grep for common errors ----------\n"
+$echo "\n---------- grep for common errors ----------\n"
 ###  * Check for log rotation
-$echo "---------- Check for log rotation ----------\n"
+$echo "\n---------- Check for log rotation ----------\n"
 
 ###*Virtualization*
 $echo "\n>>>>>>>>>> Virtualization ----------"
@@ -1303,6 +1310,8 @@ if [ "$rel" = "5.10" ] ; then
 fi
 
 
-date
+$echo "Start time:	$start_time"
+end_time=`date`
+$echo "End time:	$end_time"
 $echo ">>>>>>>>>> Done <<<<<<<<<<<"
 
