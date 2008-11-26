@@ -1,10 +1,15 @@
 #!/bin/sh
-# 
-# Lusas: Linux/unix security auditing scripts
+
+# Part of lusas:  linux/unix security auditing scripts
+# Licence: GPL v2
+# Authors:	Sean Boran <sean AT boran.com>
+#		Pablo Endres <epablo AT PabloEndres.com>
 # 
 # lusas-basic.sh
-# Based on the audit1.sh developed by Sean Boran <sean AT boran.com>
-# Pablo Endres <epablo AT PabloEndres.com>
+# Based on the audit1.sh developed by Sean Boran <sean AT boran.com> in 2000
+# 
+
+
 #
 # FUNCTION: 
 #   Run as root to document the security level of this machine.
@@ -20,22 +25,18 @@
 #   Set EXTENDED=1 if you want to include password hashes for cracking.
 #
 # USAGE: 
-#  ksh/sh/bash shell:   nice sh lusas-basic.sh > `uname -n`.audit1.log 2>&1 &
-#  To follow progress:  tail -f `uname -n`.audit1.log
-#  ./lusas-basic.sh > lusas-`uname -n`-`date "+%F-%H%M.log"` 2>&1 &
+#  ksh/sh/bash shell:   nice sh ./lusas-basic.sh > lusas-`uname -n`-`date "+%F-%H%M.log"` 2>&1 &
+#  To follow progress:  tail -f lusas-`uname -n`-`date "+%F-%H%M.log"`
+
 #
 #  Example cron entry to run on 20th July and mail results:
-#    0 0 20 07 * /secure/audit1.sh 2>&1 |mailx -s "`uname -n` audit1" root
+#    0 0 20 07 * /secure/lusas-basic.sh 2>&1 |mailx -s "`uname -n` lusas-basic" root
 #  Example cron entry for server, large output expected:
-#    0 0 20 07 * /secure/audit1.sh 2>&1 |compress|uuencode \
-#     `uname -n`.audit1.txt.Z |mailx -s "`uname -n` audit" root 
+#    0 0 20 07 * /secure/lusas-basic.sh 2>&1 |compress|uuencode \
+#     `uname -n`.lusas-basic.sh.Z |mailx -s "`uname -n` lusas-basic" root 
 #  On some Linux, replace 'mailx' by 'mail' in the above examples.
+
 VERSION="lusas-basic: 1.1";
-
-# LICENSE:  GPLv2
-
-#   This script was developed by Sean Boran, http://boran.com
-#   Please send any bug fixes or improvements to sean AT boran.com.
 
 
 ########## Settings ###########
