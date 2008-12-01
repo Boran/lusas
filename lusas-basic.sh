@@ -66,6 +66,19 @@ FILE='0';
 ###---------- Setup -------
 
 ###*Setup*
+## DESTDIR: set to define an alternate output dir, default is `pwd`
+foldername=lusas-`uname -n`-`date "+%F-%H%M"`
+pwd=`pwd`
+DESTDIR="$pwd/$foldername"
+
+## Create a dir with the following name lusas-hostname-date
+mkdir $DESTDIR
+
+## Save stdout just in case
+exec 5>&1
+## Redirect stdout and stderr to logfiles in the directory
+exec > "$DESTDIR/lusas-basic.log" 2> "$DESTDIR/lusas-basic-error.log"
+
 ## OS name, version and hardware
 os=`uname -s`
 ## We check for SunOS, Linux, HP-UX and OpenBSD
@@ -1315,4 +1328,24 @@ $echo "Start time:	$start_time"
 end_time=`date`
 $echo "End time:	$end_time"
 $echo ">>>>>>>>>> Done <<<<<<<<<<<"
+
+##Create a Tar of the folder
+if [ "$os" = "Linux" ]; then
+	tar zcf $foldername.tar.gz $foldername
+	$echo "Results were saved in $foldername.tar.gz" >&5
+
+elif [ -f /usr/bin/gzip ]; then
+	tar cf $foldername.tar $foldername
+	gzip $foldername.tar
+	$echo "Results were saved in $foldername.tar.gz">&5
+
+else
+	tar cf $foldername.tar $foldername
+	compress $foldername.tar
+	$echo "Results were saved in $foldername.tar.Z">&5
+
+fi
+##Delete the folder
+rm -rf $foldername
+
 
