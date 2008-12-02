@@ -90,8 +90,10 @@ exec 5>&1
 exec 6>&2
 
 ## Redirect stdout and stderr to logfiles in the directory
-echo "To followup on progress: tail -f $DESTDIR/lusas-basic.log $DESTDIR/errors.log"
-exec > "$DESTDIR/lusas-basic.log" 2> "$DESTDIR/errors.log"
+logfile="$DESTDIR/lusas-basic.log"
+errlogfile="$DESTDIR/errors.log"
+echo "To followup on progress: tail -f $logfile $errlogfile"
+exec > "$logfile" 2> "$errlogfil"
 
 
 ## OS name, version and hardware
@@ -565,7 +567,7 @@ fi
 ###*Kernel, Process, devices, and ports Info*
 ## Send this section to it's own file
 exec > "$DESTDIR/kernel"
-$echo "Running kernel Module" > "$DESTDIR/lusas-basic.log"
+$echo "Running kernel Module" > "$logfile"
 
 $echo "\n\n"
 $echo ">>>>>>>>>> Kernel, Process, devices, and ports Info ----------"
@@ -689,7 +691,7 @@ ls -l /dev/random 2>/dev/null
 ###*Services*
 ## Send this section to it's own file
 exec > "$DESTDIR/services"
-$echo "Running Services Module" > "$DESTDIR/lusas-basic.log"
+$echo "Running Services Module" > "$logfile"
 
 $echo ">>>>>>>>>> Services ----------"
 
@@ -1172,9 +1174,20 @@ $echo "\n=---------- postgreSQL ----------=\n"
 $ps | grep postgres| egrep -v "grep postgres"
 
 
+###      * Oracle
+##Todo: Oracle checks
+## http://www.faqs.org/docs/Linux-HOWTO/Oracle-7-HOWTO.html
+## Find something for oracle 8-10
+$echo "\n=---------- Oracle ----------=\n"
+$ps | grep oracle| egrep -v "grep oracle"
+
+## Check the oracle users home permisions and find the ORACLE_HOME dir
+## Check the $ORACLE_HOME/dbs/init.ora to $ORACLE_HOME/dbs/initorcl.ora: 
+
+
 ###*Software, Packages*
 ## Switch output back to the main logfile
-exec > "$DESTDIR/lusas-basic.log"
+exec > "$logfile"
 
 $echo ">>>>>>>>>> Software, Packages ----------"
 
@@ -1267,7 +1280,7 @@ java -version 2>&1
 ###*Logs*
 ## Send this section to it's own file
 exec > "$DESTDIR/logs"
-$echo "Running Logs Module" > "$DESTDIR/lusas-basic.log"
+$echo "Running Logs Module" > "$logfile"
 
 $echo "\n>>>>>>>>>> Logs ----------"
 
@@ -1350,7 +1363,7 @@ $echo "\n---------- Check for log rotation ----------\n"
 ###*Virtualization*
 ## Send this section to it's own file
 exec > "$DESTDIR/virtualization"
-$echo "Running Virtualization Module" > "$DESTDIR/lusas-basic.log"
+$echo "Running Virtualization Module" > "$logfile"
 
 $echo "\n>>>>>>>>>> Virtualization ----------"
 ###  * Check for Hypervisers and services
@@ -1376,7 +1389,7 @@ if [ "$rel" = "5.10" ] ; then
 fi
 
 ## Redirect back to the main file
-exec > "$DESTDIR/lusas-basic.log"
+exec > "$logfile"
 $echo "Start time:	$start_time"
 end_time=`date`
 $echo "End time:	$end_time"
