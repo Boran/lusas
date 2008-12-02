@@ -39,6 +39,41 @@
 
 VERSION="lusas-basic: 1.1";
 
+########## Getopts ###########
+
+usage()
+{
+cat << EOF
+usage: $0 [option]
+
+lusas-basic: 
+Linux/unix security auditing scripts.
+
+OPTIONS:
+   -h	Show this message
+   -d	email or emails where to send the results. i.e.: a@example.com,b@example.com,root
+   -e	Extended.  Collect a copy of files
+   -s	Verify package checksums
+
+EOF
+}
+
+
+while getopts ":hd:es" options; do
+  case $options in
+    h ) usage
+	exit 1;;
+    d ) DESTEMAIL=$OPTARG;;
+    e ) EXTENDED=1;;
+    s ) VERIFY=1;;
+    \? ) usage
+	exit 1;;
+    * ) usage
+	exit 1;;
+  esac
+done
+
+
 
 ########## Settings ###########
 # Debugging
@@ -46,12 +81,11 @@ VERSION="lusas-basic: 1.1";
 
 # Should /etc/shadow and startup file permissions also be included?
 #EXTENDED='0';
-EXTENDED='1';
+#EXTENDED='1';
 
 ## What to verify packages
-VERIFY='0';
+#VERIFY='0';
 #VERIFY='1';
-
 
 ########## Globals ###########
 
@@ -1444,18 +1478,31 @@ exec >&5 2>&6
 if [ "$os" = "Linux" ]; then
 	tar zcf $foldername.tar.gz $foldername
 	$echo "Results were saved in $pwd/$foldername.tar.gz"
+	## If the DESTEMAIL is set then sent an email with the results
+	if [ $DESTEMAIL ]; then 
+		uuencode $foldername.tar.gz $foldername.tar.gz | mail -s "$foldername" $DESTEMAIL 
+		$echo "An email has been sent to $DESTEMAIL with the output"
+	fi 
 
 elif [ -f /usr/bin/gzip ]; then
 	tar cf $foldername.tar $foldername
 	/usr/bin/gzip $foldername.tar
 	$echo "Results were saved in $pwd/$foldername.tar.gz"
+	if [ $DESTEMAIL ]; then 
+		uuencode $foldername.tar.gz $foldername.tar.gz | mail -s "$foldername" $DESTEMAIL 
+		$echo "An email has been sent to $DESTEMAIL with the output"
+	fi 
 
 else
 	tar cf $foldername.tar $foldername
 	compress $foldername.tar
 	$echo "Results were saved in $pwd/$foldername.tar.Z"
-
+	if [ $DESTEMAIL ]; then 
+		uuencode $foldername.tar.Z $foldername.tar.Z | mail -s "$foldername" $DESTEMAIL 
+		$echo "An email has been sent to $DESTEMAIL with the output"
+	fi 
 fi
+
 ##Delete the folder
 rm -rf $DESTDIR
 
