@@ -93,7 +93,7 @@ exec 6>&2
 logfile="$DESTDIR/lusas-basic.log"
 errlogfile="$DESTDIR/errors.log"
 echo "To followup on progress: tail -f $logfile $errlogfile"
-exec > "$logfile" 2> "$errlogfil"
+exec > "$logfile" 2> "$errlogfile"
 
 
 ## OS name, version and hardware
@@ -1183,6 +1183,49 @@ $ps | grep oracle| egrep -v "grep oracle"
 
 ## Check the oracle users home permisions and find the ORACLE_HOME dir
 ## Check the $ORACLE_HOME/dbs/init.ora to $ORACLE_HOME/dbs/initorcl.ora: 
+
+
+###   * Clustering
+$echo "\n---------- Clustering ----------\n"
+###      * Heartbeat
+$echo "\n=---------- Heartbeat ----------=\n"
+
+if [ -d /etc/ha.d ]; then 
+  run /etc/init.d/heartbeat status
+
+  ##Check deamon status
+  $ps | grep heartbeat| egrep -v "grep heartbeat"
+
+  ## Read config file
+  $echo "\nheartbeat .. /etc/ha.d/ha.cf"
+  egrep -v "$comments" /etc/ha.d/ha.cf
+  $echo ""
+
+  $echo "heartbeat .."
+  egrep -v "$comments" /etc/ha.d/haresources
+  $echo ""
+
+else
+  $echo "Heartbeat is not installed"
+fi
+
+###      * drbd
+$echo "\n=---------- drbd ----------=\n"
+
+if [ -f /etc/drbd.conf ]; then 
+  run /etc/init.d/drbd status
+
+  ##Check deamon status
+  $ps | grep drbd| egrep -v "grep drbd"
+
+  ## Read config file
+  $echo "\ndrbd .. /etc/drbd.conf"
+  egrep -v "$comments" /etc/drbd.conf
+  $echo ""
+else
+  $echo "drbd is not installed"
+fi
+
 
 
 ###*Software, Packages*
