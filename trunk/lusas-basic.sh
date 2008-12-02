@@ -25,8 +25,9 @@
 #   Set EXTENDED=1 if you want to include password hashes for cracking.
 #
 # USAGE: 
-#  ksh/sh/bash shell:   nice sh ./lusas-basic.sh > lusas-`uname -n`-`date "+%F-%H%M.log"` 2>&1 &
-#  To follow progress:  tail -f lusas-`uname -n`-`date "+%F-%H%M.log"`
+#  ksh/sh/bash shell:   nice sh ./lusas-basic.sh
+# 
+#  To follow progress:  tail -f ./lusas-`uname -n`-`date "+%F-%H%M.log"`
 
 #
 #  Example cron entry to run on 20th July and mail results:
@@ -46,6 +47,11 @@ VERSION="lusas-basic: 1.1";
 # Should /etc/shadow and startup file permissions also be included?
 #EXTENDED='0';
 EXTENDED='1';
+
+## What to verify packages
+VERIFY='0';
+#VERIFY='1';
+
 
 ########## Globals ###########
 
@@ -72,12 +78,21 @@ pwd=`pwd`
 DESTDIR="$pwd/$foldername"
 
 ## Create a dir with the following name lusas-hostname-date
-mkdir $DESTDIR
+echo "Creating $DESTDIR to store all the results"
+mkdir -p $DESTDIR
+mkdir -p $DESTDIR/etc
+mkdir -p $DESTDIR/etc/sysconfig
+mkdir -p $DESTDIR/var
+mkdir -p $DESTDIR/var/log
 
-## Save stdout just in case
+## Save stdout and err just in case
 exec 5>&1
+exec 6>&2
+
 ## Redirect stdout and stderr to logfiles in the directory
+echo "To followup on progress: tail -f $DESTDIR/lusas-basic.log $DESTDIR/lusas-basic-error.log"
 exec > "$DESTDIR/lusas-basic.log" 2> "$DESTDIR/lusas-basic-error.log"
+
 
 ## OS name, version and hardware
 os=`uname -s`
@@ -303,6 +318,7 @@ $echo ""
 run mount
 $echo ""
 
+
 ###*User / Accounts Info*
 $echo ">>>>>>>>>> User / Accounts Info ----------"
 ###  * w / whodo
@@ -403,12 +419,9 @@ if   [ "$os" = "Linux" ] ; then
     grpck -r
 fi
 
-##Todo: These should just be copied to the results directory
 if [ $EXTENDED = "1" ] ; then 
-    $echo "\n\n>>>>> Extended audit: add shadow file ....";        
-    cat /etc/shadow    
-    $echo "\n\n>>>>> Extended audit: add passwd file ....";        
-    cat /etc/passwd    
+    cp -p /etc/passwd $DESTDIR/etc/
+    cp -p /etc/shadow $DESTDIR/etc/
 fi
 
 ###    * Account settings
@@ -461,6 +474,7 @@ elif   [ "$os" = "Linux" ] ; then
     grep securetty /etc/pam.d/login 2>/dev/null
     grep ROOT_LOGIN_REMOTE /etc/rc.config 2>/dev/null
 fi
+
 
 ###*Networking Information*
 $echo "\n\n"
@@ -549,6 +563,10 @@ fi
 
 
 ###*Kernel, Process, devices, and ports Info*
+## Send this section to it's own file
+exec > "$DESTDIR/kernel"
+$echo "Running kernel Module" > "$DESTDIR/lusas-basic.log"
+
 $echo "\n\n"
 $echo ">>>>>>>>>> Kernel, Process, devices, and ports Info ----------"
 
@@ -669,7 +687,10 @@ $echo "\---------- Check /dev/random ----------\n"
 ls -l /dev/random 2>/dev/null
 
 ###*Services*
-$echo "\n\n"
+## Send this section to it's own file
+exec > "$DESTDIR/services"
+$echo "Running Services Module" > "$DESTDIR/lusas-basic.log"
+
 $echo ">>>>>>>>>> Services ----------"
 
 ##Todo: Most of this section should be writting to it's own subdirectory to maintain the audit readable
@@ -971,12 +992,14 @@ done;
 
 ## Apache2
 if [ -d /etc/apache2 ] ; then 
-  cd /etc/apache2 
-  files=`ls *conf */*conf`
+  files=`find /etc/apache2 -name "*.conf"`
+#  cd /etc/apache2 
+#  files=`ls *conf */*conf`
   for f in $files ; do
     $echo "\nApache2: $f ..."
     egrep -v "$comments" $f
   done
+#  cd $pwd
 fi
 
 ## Apache: error logs
@@ -1162,11 +1185,35 @@ $ps | grep postgres| egrep -v "grep postgres"
 
 
 ###*Software, Packages*
+## Switch output back to the main logfile
+exec > "$DESTDIR/lusas-basic.log"
+
 $echo ">>>>>>>>>> Software, Packages ----------"
 
 ###  * Installed software
 $echo "---------- Installed software ----------\n"
 
+## List the install software
+##Todo: Installed software.  Complete for suse, debian, UX and BSD
+if [ "$os" = "Linux" ] ; then
+  if [ "$dist" = "redhat" ] ; then
+	rpm -qa --qf '%{NAME} %{VERSION}-%{RELEASE} %{ARCH}\n' > $DESTDIR/pkglist
+
+  elif [ "$dist" = "suse" ] ; then
+	/bin/false
+
+  elif [ "$dist" = "debian" ] ; then
+	/bin/false
+  fi
+
+elif [ "$os" = "SunOS" ] ; then
+  pkginfo
+  
+elif [ "$os" = "HP-UX" ] ; then
+  /bin/false
+elif [ "$os" = "OpenBSD" ] ; then
+  /bin/false
+fi
 
 ###  * Patch level
 $echo "---------- Patch level ----------\n"
@@ -1175,20 +1222,23 @@ $echo "\n\n Patches for $os  ------"
 ##Todo: Patch level - Find a eficient way of doing this.
 # - pca http://www.par.univie.ac.at/solaris/pca/ is a great solution if we can bundle it in. 
 # We could bundle it with the latests patchdiag.xref so the dependencies go way down and no Internet is needed on the server
+# Got to check this with sun
 
 if [ "$os" = "SunOS" ] ; then
-  showrev -p                 
+  showrev -p #> "$DESTDIR/showrev"                
 
-  ## Disabled: Security Focus have stopped this service.
-  #$echo "\n--- Patches list for http://www.securityfocus.com/sun/vulncalc  ---" 
-  #showrev -p | cut -f2 -d' '|xargs
+  if [ "$VERIFY" = "1" ] ; then
+    $echo "\n>>>>> package installation accuracy (ignoring permissions, group name, path)----"
+    $echo "(This can be really long, but should report differences on permissions,"
+    $echo " sizes etc of installed files against the Sun package database. Note that"
+    $echo " its easy to modify this database, so do not rely only on this method"
+    $echo " to detect unauthorised modifications of files.)"
+    pkgchk -n 2>&1 | egrep -v "group name|permissions|pathname does not exist"
 
-  $echo "\n>>>>> package installation accuracy (ignoring permissions, group name, path)----"
-  $echo "(This can be really long, but should report differences on permissions,"
-  $echo " sizes etc of installed files against the Sun package database. Note that"
-  $echo " its easy to modify this database, so do not rely only on this method"
-  $echo " to detect unauthorised modifications of files.)"
-  pkgchk -n 2>&1 | egrep -v "group name|permissions|pathname does not exist"
+  else
+    $echo "Skipping package checks"
+
+  fi
 
 elif [ "$os" = "HP-UX" ] ; then
   $echo "\nswlist -l fileset |grep PH|grep # ....."
@@ -1197,18 +1247,17 @@ elif [ "$os" = "HP-UX" ] ; then
   swlist -l product
 
 elif [ "$os" = "Linux" ] ; then 
-##Todo: Move this somewhere else
-#  $echo "\n Auto start daemons:"
-#  run chkconfig --list|grep on
   $echo "\n Package DB:"
-  #run rpm --verify -a -i --nofiles
+  
+  if [ "$VERIFY" = "1" ] ; then
+    run rpm --verify -a -i --nofiles
 
+  else
+    $echo "Skipping package checks"
+  fi
 
 ##Todo: Pkg list for suse
 	if [ "$dist" = "redhat" ] ; then 
-		$echo "Package list:"
-		run rpm -qa --qf '%{NAME} %{VERSION}-%{RELEASE} %{ARCH}\n'
-
 		$echo "\nPending update:"
 		run yum check-update
 
@@ -1228,6 +1277,10 @@ java -version 2>&1
 
 
 ###*Logs*
+## Send this section to it's own file
+exec > "$DESTDIR/logs"
+$echo "Running Logs Module" > "$DESTDIR/lusas-basic.log"
+
 $echo "\n>>>>>>>>>> Logs ----------"
 
 ###  * Capture log files
@@ -1307,9 +1360,20 @@ $echo "\n---------- grep for common errors ----------\n"
 $echo "\n---------- Check for log rotation ----------\n"
 
 ###*Virtualization*
+## Send this section to it's own file
+exec > "$DESTDIR/virtualization"
+$echo "Running Virtualization Module" > "$DESTDIR/lusas-basic.log"
+
 $echo "\n>>>>>>>>>> Virtualization ----------"
 ###  * Check for Hypervisers and services
 $echo "---------- Check for Hypervisers and services ----------\n"
+## Linux vmware check
+if [ "$os" = "Linux" ] ; then 
+   $echo "vmware kernel module info:"
+   /sbin/modinfo vmnet
+   run /etc/init.d/vmware status
+
+fi
 
 ###  * Check for Containers and Zones (Solaris)
 $echo "---------- Check for Containers and Zones (Solaris) ----------\n"
@@ -1323,29 +1387,33 @@ if [ "$rel" = "5.10" ] ; then
 	done
 fi
 
-
+## Redirect back to the main file
+exec > "$DESTDIR/lusas-basic.log"
 $echo "Start time:	$start_time"
 end_time=`date`
 $echo "End time:	$end_time"
 $echo ">>>>>>>>>> Done <<<<<<<<<<<"
 
+exec >&5 2>&6
+
+set -x
 ##Create a Tar of the folder
 if [ "$os" = "Linux" ]; then
 	tar zcf $foldername.tar.gz $foldername
-	$echo "Results were saved in $foldername.tar.gz" >&5
+	$echo "Results were saved in $pwd/$foldername.tar.gz"
 
 elif [ -f /usr/bin/gzip ]; then
 	tar cf $foldername.tar $foldername
-	gzip $foldername.tar
-	$echo "Results were saved in $foldername.tar.gz">&5
+	/usr/bin/gzip $foldername.tar
+	$echo "Results were saved in $pwd/$foldername.tar.gz"
 
 else
 	tar cf $foldername.tar $foldername
 	compress $foldername.tar
-	$echo "Results were saved in $foldername.tar.Z">&5
+	$echo "Results were saved in $pwd/$foldername.tar.Z"
 
 fi
 ##Delete the folder
-rm -rf $foldername
+rm -rf $DESTDIR
 
 
