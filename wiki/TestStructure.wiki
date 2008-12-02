@@ -67,6 +67,10 @@ After analiysing the scripts and what they do we decided that we could give a ni
     * Database Servers
       * mysql
       * postgreSQL
+      * Oracle
+    * Clustering
+      * Heartbeat
+      * drdb
 
 *Software, Packages*
   * Installed software
