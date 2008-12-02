@@ -90,8 +90,8 @@ exec 5>&1
 exec 6>&2
 
 ## Redirect stdout and stderr to logfiles in the directory
-echo "To followup on progress: tail -f $DESTDIR/lusas-basic.log $DESTDIR/lusas-basic-error.log"
-exec > "$DESTDIR/lusas-basic.log" 2> "$DESTDIR/lusas-basic-error.log"
+echo "To followup on progress: tail -f $DESTDIR/lusas-basic.log $DESTDIR/errors.log"
+exec > "$DESTDIR/lusas-basic.log" 2> "$DESTDIR/errors.log"
 
 
 ## OS name, version and hardware
@@ -976,32 +976,20 @@ $echo "\nhttpd version:"
 process=`${proc1} | sort | uniq | grep httpd`
 [ $? = 0 ] && $process -v;
 
-
-## Apache: config
-files="/usr/local/apache/conf /usr/local/apache2/conf /opt/apache/conf /etc/httpd /etc/httpd/conf /etc/apache /etc/apache2 /var/www/conf /opt/portal/apache/conf"
-for f in $files ; do
-  if [ -f $f/httpd.conf ] ; then 
-    $echo "\nhttpd config... $f .."
-    egrep -v "$comments" $f/httpd.conf
+## Apache: config 
+## List of directory where apache is normally installed
+dirs="/etc/httpd/conf /etc/httpd/conf.d /etc/apache /etc/apache2 /usr/local/apache/conf /usr/local/apache2/conf /opt/apache/conf var/www/conf /opt/portal/apache/conf"
+for d in $dirs; do
+  if [ -d $d ] ; then
+    files=`find $d -name "*.conf"`
+    for f in $files ; do
+      $echo "\nhttpd config ... $f .."
+      egrep -v "$comments" $f
+      $echo ""
+    done
   fi
-  if [ -f $f/httpsd.conf ] ; then 
-    $echo "\nhttpsd config... $f .."
-    egrep -v "$comments" $f/httpsd.conf
-  fi
-done;
-
-## Apache2
-if [ -d /etc/apache2 ] ; then 
-  files=`find /etc/apache2 -name "*.conf"`
-#  cd /etc/apache2 
-#  files=`ls *conf */*conf`
-  for f in $files ; do
-    $echo "\nApache2: $f ..."
-    egrep -v "$comments" $f
-  done
-#  cd $pwd
-fi
-
+done
+    
 ## Apache: error logs
 files="/usr/local/apache /usr/local/apache2 /opt/apache /var/www /opt/portal/apache /var/log/httpd/"
 for f in $files/logs/error_log ; do
@@ -1396,7 +1384,6 @@ $echo ">>>>>>>>>> Done <<<<<<<<<<<"
 
 exec >&5 2>&6
 
-set -x
 ##Create a Tar of the folder
 if [ "$os" = "Linux" ]; then
 	tar zcf $foldername.tar.gz $foldername
