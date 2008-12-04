@@ -6,5 +6,6 @@ I would grep it, but it is contextualized, so they don't make much sense out of 
 
 
   * Check for Tomcat and it's files
+  * sestatus (selinux test)
 
 
