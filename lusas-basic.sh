@@ -1477,7 +1477,9 @@ exec >&5 2>&6
 ##Create a Tar of the folder
 if [ "$os" = "Linux" ]; then
 	tar zcf $foldername.tar.gz $foldername
+	reportfilename="$foldername.tar.gz"
 	$echo "Results were saved in $pwd/$foldername.tar.gz"
+	
 	## If the DESTEMAIL is set then sent an email with the results
 	if [ $DESTEMAIL ]; then 
 		uuencode $foldername.tar.gz $foldername.tar.gz | mail -s "$foldername" $DESTEMAIL 
@@ -1487,6 +1489,7 @@ if [ "$os" = "Linux" ]; then
 elif [ -f /usr/bin/gzip ]; then
 	tar cf $foldername.tar $foldername
 	/usr/bin/gzip $foldername.tar
+	reportfilename="$foldername.tar.gz"
 	$echo "Results were saved in $pwd/$foldername.tar.gz"
 	if [ $DESTEMAIL ]; then 
 		uuencode $foldername.tar.gz $foldername.tar.gz | mail -s "$foldername" $DESTEMAIL 
@@ -1496,11 +1499,26 @@ elif [ -f /usr/bin/gzip ]; then
 else
 	tar cf $foldername.tar $foldername
 	compress $foldername.tar
+	reportfilename="$foldername.tar.Z"
 	$echo "Results were saved in $pwd/$foldername.tar.Z"
 	if [ $DESTEMAIL ]; then 
-		uuencode $foldername.tar.Z $foldername.tar.Z | mail -s "$foldername" $DESTEMAIL 
+		
 		$echo "An email has been sent to $DESTEMAIL with the output"
 	fi 
+fi
+
+## Send it by email
+##Todo: send email - find a better way to do this
+##  uuencode for Solaris is /bin/uuencode and in Linux /usr/bin/uuencode, so lets test for both before sending the email
+if [ $DESTEMAIL  ]; then 
+	if [ -f /usr/bin/uuencode ] || [ -f /bin/uuencode ] ; then 
+		uuencode  $reportfilename $reportfilename | mail -s "$foldername" $DESTEMAIL 
+		$echo "An email has been sent to $DESTEMAIL with the output"
+	else
+		$echo "The report couldn't be attached because uuencode is not installed on this server" | mail -s "$foldername file not attached" $DESTEMAIL
+		$echo "\n\nThe report couldn't be emailed because uuencode is not installed on this server! \n\n"
+	fi
+
 fi
 
 ##Delete the folder
