@@ -73,6 +73,10 @@ while getopts ":hd:es" options; do
   esac
 done
 
+##Check for uuencode and warn if it is not there
+if !( [ -f /usr/bin/uuencode ] || [ -f /bin/uuencode ])  && [ $DESTEMAIL ] ; then 
+	echo "warning:  uuencode is not found on this server, I can't send the results by email\n\n"
+fi
 
 
 ########## Settings ###########
