@@ -54,18 +54,20 @@ OPTIONS:
    -d	email or emails where to send the results. i.e.: a@example.com,b@example.com,root
    -e	Extended.  Collect a copy of files
    -s	Verify package checksums
+   -c	Don't clean up after run. Leave the directory with the results on disk.
 
 EOF
 }
 
 
-while getopts ":hd:es" options; do
+while getopts ":hd:ces" options; do
   case $options in
     h ) usage
 	exit 1;;
     d ) DESTEMAIL=$OPTARG;;
     e ) EXTENDED=1;;
     s ) VERIFY=1;;
+    c ) CLEANUP=1;;
     \? ) usage
 	exit 1;;
     * ) usage
@@ -129,9 +131,11 @@ exec 6>&2
 
 ## Redirect stdout and stderr to logfiles in the directory
 logfile="$DESTDIR/lusas-basic.log"
-errlogfile="$DESTDIR/errors.log"
-echo "To followup on progress: tail -f $logfile $errlogfile"
-exec > "$logfile" 2> "$errlogfile"
+#errlogfile="$DESTDIR/errors.log"
+#echo "To followup on progress: tail -f $logfile $errlogfile"
+#exec > "$logfile" 2> "$errlogfile"
+echo "To followup on progress: tail -f $logfile"
+exec >"$logfile" 2>>"$logfile"
 
 
 ## OS name, version and hardware
@@ -266,8 +270,8 @@ run () {
 
 $echo ">>>>>>>>>> AUDIT SCRIPT: $0 $VERSION <<<<<<<<<<<"
 date
-$echo " "
-$echo " "
+$echo ""
+$echo ""
 
 
 ###*System Info*
@@ -316,7 +320,7 @@ if   [ "$os" = "Linux" ] ; then
     run /usr/bin/free -m
     $echo "=========================================="
     $echo ""
-    $echo "For more hw information run lspci, lsdev and lsusb"
+    $echo "For more Hw information run lspci, lsdev and lsusb"
     $echo "\n\n"
     
 	## Is SuSE siga installed? We can list the entire system HW/SW config
@@ -450,16 +454,18 @@ elif [ "$os" = "HP-UX" ] ; then
 else
     $echo "/etc/pam.d/passwd :"
     egrep -v "$comments" /etc/pam.d/passwd
+    $echo "\n/etc/pam.d/system-auth :"
+    egrep -v "$comments" /etc/pam.d/system-auth
 fi
 
 if   [ "$os" = "Linux" ] ; then 
-    $echo "Checking for dormant/invalid with: pwck -r"
+    $echo "\nChecking for dormant/invalid with: pwck -r"
     pwck -r
     $echo "\n and grpck -r"
     grpck -r
 fi
 
-if [ $EXTENDED = "1" ] ; then 
+if [ "$EXTENDED" = "1" ] ; then 
     cp -p /etc/passwd $DESTDIR/etc/
     cp -p /etc/shadow $DESTDIR/etc/
 fi
@@ -604,8 +610,8 @@ fi
 
 ###*Kernel, Process, devices, and ports Info*
 ## Send this section to it's own file
-exec > "$DESTDIR/kernel"
-$echo "Running kernel Module" > "$logfile"
+exec >"$DESTDIR/kernel" 2>>"$DESTDIR/kernel"
+$echo "Running kernel Module" >> "$logfile"
 
 $echo "\n\n"
 $echo ">>>>>>>>>> Kernel, Process, devices, and ports Info ----------"
@@ -630,7 +636,7 @@ if   [ "$os" = "Linux" ] ; then
 	sysctl $f 2>/dev/null
     done
     
-    if [ $EXTENDED = "1" ] ; then
+    if [ "$EXTENDED" = "1" ] ; then
 	$echo "\n Linux: kernel modules (modprobe -c -l) --"
 	##Todo: Linux Kernel Modules - Why are we doing this?
 	#run modprobe -c -l
@@ -728,8 +734,8 @@ ls -l /dev/random 2>/dev/null
 
 ###*Services*
 ## Send this section to it's own file
-exec > "$DESTDIR/services"
-$echo "Running Services Module" > "$logfile"
+exec >"$DESTDIR/services" 2>>"$DESTDIR/services"
+$echo "Running Services Module" >> "$logfile"
 
 $echo ">>>>>>>>>> Services ----------"
 
@@ -1121,7 +1127,7 @@ $echo "\n=---------- Sendmail ----------=\n"
 $echo "Sendmail process:"
 $ps | grep sendmail | egrep -v "grep sendmail"
 process=`${proc1} | sort | uniq | grep sendmail`
-[ $? = 0 ] && echo "Sendmail `what $process |egrep 'SunOS| main.c'`";
+[ $? = 0 ] && echo "Sendmail `which $process |egrep 'SunOS| main.c'`";
 ##Todo: Check sendmail error in Linux
 #./lusas-basic.sh: line 1031: what: command not found
 
@@ -1265,10 +1271,9 @@ else
 fi
 
 
-
 ###*Software, Packages*
 ## Switch output back to the main logfile
-exec > "$logfile"
+exec >>"$logfile" 2>>"$logfile"
 
 $echo ">>>>>>>>>> Software, Packages ----------"
 
@@ -1360,8 +1365,8 @@ java -version 2>&1
 
 ###*Logs*
 ## Send this section to it's own file
-exec > "$DESTDIR/logs"
-$echo "Running Logs Module" > "$logfile"
+exec >"$DESTDIR/logs" 2>>"$DESTDIR/logs"
+$echo "Running Logs Module" >> "$logfile"
 
 $echo "\n>>>>>>>>>> Logs ----------"
 
@@ -1443,9 +1448,8 @@ $echo "\n---------- Check for log rotation ----------\n"
 
 ###*Virtualization*
 ## Send this section to it's own file
-exec > "$DESTDIR/virtualization"
-$echo "Running Virtualization Module" > "$logfile"
-
+exec >"$DESTDIR/virtualization" 2>>"$DESTDIR/virtualization"
+$echo "Running Virtualization Module"  >> "$logfile""$DESTDIR/kernel"
 $echo "\n>>>>>>>>>> Virtualization ----------"
 ###  * Check for Hypervisers and services
 $echo "---------- Check for Hypervisers and services ----------\n"
@@ -1470,7 +1474,8 @@ if [ "$rel" = "5.10" ] ; then
 fi
 
 ## Redirect back to the main file
-exec > "$logfile"
+exec >>"$logfile" 2>>"$logfile"
+$echo "\n\n"
 $echo "Start time:	$start_time"
 end_time=`date`
 $echo "End time:	$end_time"
@@ -1478,37 +1483,22 @@ $echo ">>>>>>>>>> Done <<<<<<<<<<<"
 
 exec >&5 2>&6
 
+##Use $results_file to store the file name
 ##Create a Tar of the folder
 if [ "$os" = "Linux" ]; then
 	tar zcf $foldername.tar.gz $foldername
 	reportfilename="$foldername.tar.gz"
-	$echo "Results were saved in $pwd/$foldername.tar.gz"
-	
-	## If the DESTEMAIL is set then sent an email with the results
-	if [ $DESTEMAIL ]; then 
-		uuencode $foldername.tar.gz $foldername.tar.gz | mail -s "$foldername" $DESTEMAIL 
-		$echo "An email has been sent to $DESTEMAIL with the output"
-	fi 
 
 elif [ -f /usr/bin/gzip ]; then
 	tar cf $foldername.tar $foldername
 	/usr/bin/gzip $foldername.tar
 	reportfilename="$foldername.tar.gz"
-	$echo "Results were saved in $pwd/$foldername.tar.gz"
-	if [ $DESTEMAIL ]; then 
-		uuencode $foldername.tar.gz $foldername.tar.gz | mail -s "$foldername" $DESTEMAIL 
-		$echo "An email has been sent to $DESTEMAIL with the output"
-	fi 
 
 else
 	tar cf $foldername.tar $foldername
 	compress $foldername.tar
 	reportfilename="$foldername.tar.Z"
-	$echo "Results were saved in $pwd/$foldername.tar.Z"
-	if [ $DESTEMAIL ]; then 
-		
-		$echo "An email has been sent to $DESTEMAIL with the output"
-	fi 
+	
 fi
 
 ## Send it by email
@@ -1518,6 +1508,7 @@ if [ $DESTEMAIL  ]; then
 	if [ -f /usr/bin/uuencode ] || [ -f /bin/uuencode ] ; then 
 		uuencode  $reportfilename $reportfilename | mail -s "$foldername" $DESTEMAIL 
 		$echo "An email has been sent to $DESTEMAIL with the output"
+		email_sent=1
 	else
 		$echo "The report couldn't be attached because uuencode is not installed on this server" | mail -s "$foldername file not attached" $DESTEMAIL
 		$echo "\n\nThe report couldn't be emailed because uuencode is not installed on this server! \n\n"
@@ -1525,7 +1516,15 @@ if [ $DESTEMAIL  ]; then
 
 fi
 
-##Delete the folder
-rm -rf $DESTDIR
+##Cleanup
+if [ $CLEANUP ]; then 
 
+	$echo "Results were saved in $DESTDIR"
+	rm -f $reportfilename
+
+else
+	##Delete the result directory
+	$echo "Results were saved in $pwd/$reportfilename"
+	rm -rf $DESTDIR
+fi
 
