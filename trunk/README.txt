@@ -18,7 +18,6 @@ Update dec'08: Pablo is working on a new release replacing audit1.sh with lusas-
 
 USAGE: 
   ./lusas-basic.sh -h
-
-To the other aduit scripts, refer to http://boran.com/audit
+  For the other audit scripts, refer to http://boran.com/audit
 
 
