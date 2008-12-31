@@ -31,9 +31,9 @@
 
 #
 #  Example cron entry to run on 20th July and mail results:
-#    0 0 20 07 * /secure/lusas-basic.sh 2>&1 |mailx -s "`uname -n` lusas-basic" root
+#    0 0 20 07 * /lusas/lusas-basic.sh 2>&1 |mailx -s "`uname -n` lusas-basic" root
 #  Example cron entry for server, large output expected:
-#    0 0 20 07 * /secure/lusas-basic.sh 2>&1 |compress|uuencode \
+#    0 0 20 07 * /lusas/lusas-basic.sh 2>&1 |compress|uuencode \
 #     `uname -n`.lusas-basic.sh.Z |mailx -s "`uname -n` lusas-basic" root 
 #  On some Linux, replace 'mailx' by 'mail' in the above examples.
 
