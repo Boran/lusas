@@ -746,17 +746,18 @@ $echo ">>>>>>>>>> Services ----------"
 $echo "---------- Services status ----------\n"
 
 if   [ "$os" = "Linux" ] ; then 
-	$echo "Running services -----"
-	for i in `ls /etc/init.d/*`; do $i status; done |grep running 2> /dev/null
-	$echo ""
 
 ##Todo: Finish linux service list
 	if [ "$dist" =  "redhat" ] ; then
+		$echo "Running services -----"
+		for i in `ls /etc/init.d/*`; do $i status; done |grep running 2> /dev/null
+		$echo ""
 		$echo "Services boot config -----"
 		run chkconfig --list
 
 	elif [ "$dist" =  "suse" ] ; then
 		/bin/false ## place holder
+
 	elif [ "$dist" =  "debian" ] ; then
 		##Debian and derivates (Ubuntu)
 		/bin/false ## place holder
@@ -1272,8 +1273,10 @@ fi
 
 
 ###*Software, Packages*
-## Switch output back to the main logfile
-exec >>"$logfile" 2>>"$logfile"
+## Send this section to it's own file
+exec >"$DESTDIR/software" 2>>"$DESTDIR/software"
+$echo "Running Software Module" >> "$logfile"
+
 
 $echo ">>>>>>>>>> Software, Packages ----------"
 
@@ -1285,6 +1288,7 @@ $echo "---------- Installed software ----------\n"
 if [ "$os" = "Linux" ] ; then
   if [ "$dist" = "redhat" ] ; then
 	rpm -qa --qf '%{NAME} %{VERSION}-%{RELEASE} %{ARCH}\n' > $DESTDIR/pkglist
+	$echo "A complete list of installed packages was written to $DESTDIR/pkglist"
 
   elif [ "$dist" = "suse" ] ; then
 	/bin/false
