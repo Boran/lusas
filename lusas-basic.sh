@@ -563,6 +563,22 @@ $echo "\n---------- Ports and sockets ----------\n"
 #$echo "\nNetwork connections - current:"
 netstat -a
 
+if [ "$os" = "SunOS" ] ; then
+  #$echo "\nls -l /proc (You only need to look at this if an intrusion is probable)"
+  $echo "\nProcesses, and socks, from 'pfiles /proc/*"
+  pfiles /proc/* | egrep 'sockname: AF_INET|peername|^[0-9]+:'| egrep -v 'sockname: AF_INET 0.0.0.0'
+fi
+
+###  * List open files, devices, ports... 
+$echo "\n---------- List open files, devices, ports ----------\n"
+##Todo: Should these comments be here?
+#$echo "\n\n>>>>> Is lsof installed? We can list open files, device, ports ---"
+which lsof 2>/dev/null
+$lsof;
+##Todo: Check lsof parameters for sol 10
+#/opt/csw/bin/lsof: illegal option character: C
+
+
 ###  * Firewalls
 $echo "\n---------- Firewalls ----------\n"
 
@@ -714,20 +730,6 @@ $echo "\n---------- Process Info ----------\n"
 #$echo     "      as root?"
 run $ps
 
-if [ "$os" = "SunOS" ] ; then
-  #$echo "\nls -l /proc (You only need to look at this if an intrusion is probable)"
-  $echo "\nProcesses, and socks, from 'pfiles /proc/*"
-  pfiles /proc/* | egrep 'sockname: AF_INET|peername|^[0-9]+:'| egrep -v 'sockname: AF_INET 0.0.0.0'
-fi
-
-###  * List open files, devices, ports... 
-$echo "\n---------- List open files, devices, ports ----------\n"
-##Todo: Should these comments be here?
-#$echo "\n\n>>>>> Is lsof installed? We can list open files, device, ports ---"
-which lsof 2>/dev/null
-$lsof;
-##Todo: Check lsof parameters for sol 10
-#/opt/csw/bin/lsof: illegal option character: C
 
 
 ###  * Check /dev/random
