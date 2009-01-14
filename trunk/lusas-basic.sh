@@ -704,6 +704,8 @@ if   [ "$os" = "SunOS" ] ; then
 fi
 
 ###  * Process Info
+## Returning output to the main logfile
+exec >>"$logfile" 2>>"$logfile"
 $echo "\n---------- Process Info ----------\n"
 
 ##Todo: Should these comments be here?
@@ -1466,9 +1468,9 @@ if [ "$os" = "Linux" ] ; then
 fi
 
 ###  * Check for Containers and Zones (Solaris)
-$echo "---------- Check for Containers and Zones (Solaris) ----------\n"
-## Check if Zones are supported in earlier versions
+##Todo:  Check if Zones are supported in earlier versions
 if [ "$rel" = "5.10" ] ; then 
+	$echo "---------- Check for Containers and Zones (Solaris) ----------\n"
 	run zoneadm list -cv
 	$echo "\nShowing the full config of each zone\n\n"
 	for i in `zoneadm list -cp|cut -d: -f2 |grep -v global`; do
