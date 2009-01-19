@@ -362,6 +362,10 @@ $echo ""
 run mount
 $echo ""
 
+###  * Current runlevel
+$echo "---------- Current runlevel ----------\n"
+run who -r
+$echo ""
 
 ###*User / Accounts Info*
 $echo ">>>>>>>>>> User / Accounts Info ----------"
@@ -380,7 +384,6 @@ fi
 $echo "\n---------- Accounts checks ----------\n"
 $echo "Account, password and shadow checks"
 $echo "Number of accounts: `wc -l /etc/passwd`"
-$echo ""
 
 $echo "\nAccounts with UID=0: " 
 $echo `awk -F: '{if ($3=="0") print $1}' /etc/passwd`
@@ -627,7 +630,8 @@ fi
 ###*Kernel, Process, devices, and ports Info*
 ## Send this section to it's own file
 exec >"$DESTDIR/kernel" 2>>"$DESTDIR/kernel"
-$echo "Running kernel Module" >> "$logfile"
+$echo "\n\n== Running kernel, process, device and ports Module ==" >> "$logfile"
+$echo "Look for details in: $DESTDIR/kernel" >> "$logfile"
 
 $echo "\n\n"
 $echo ">>>>>>>>>> Kernel, Process, devices, and ports Info ----------"
@@ -653,7 +657,7 @@ if   [ "$os" = "Linux" ] ; then
     done
     
     if [ "$EXTENDED" = "1" ] ; then
-	$echo "\n Linux: kernel modules (modprobe -c -l) --"
+	$echo "\nLinux: kernel modules (modprobe -c -l) --\n"
 	##Todo: Linux Kernel Modules - Why are we doing this?
 	#run modprobe -c -l
 	## List active modules
@@ -721,7 +725,7 @@ fi
 
 ###  * Process Info
 ## Returning output to the main logfile
-exec >>"$logfile" 2>>"$logfile"
+#exec >>"$logfile" 2>>"$logfile"
 $echo "\n---------- Process Info ----------\n"
 
 ##Todo: Should these comments be here?
@@ -737,6 +741,9 @@ $echo "\---------- Check /dev/random ----------\n"
 ls -l /dev/random 2>/dev/null
 
 ###*Services*
+$echo "\n\n== Running Services Module ==" >> "$logfile"
+$echo "Look for details in: $DESTDIR/services" >> "$logfile"
+
 ## Send this section to it's own file
 exec >"$DESTDIR/services" 2>>"$DESTDIR/services"
 $echo "Running Services Module" >> "$logfile"
@@ -753,10 +760,10 @@ if   [ "$os" = "Linux" ] ; then
 
 ##Todo: Finish linux service list
 	if [ "$dist" =  "redhat" ] ; then
-		$echo "Running services -----"
+		$echo "Running services -----\n"
 		for i in `ls /etc/init.d/*`; do $i status; done |grep running 2> /dev/null
 		$echo ""
-		$echo "Services boot config -----"
+		$echo "Services boot config -----\n"
 		run chkconfig --list
 
 	elif [ "$dist" =  "suse" ] ; then
@@ -937,7 +944,7 @@ done;
 files="/usr/local/samba/lib/smb.conf /etc/samba/smb.conf"
 for f in $files ; do
   if [ -f $f ] ; then 
-    echo "\nsamba config $f .."
+    $echo "\nsamba config $f .."
     # Samba can have comments with ';'
     egrep -v "$comments" $f | egrep -v "^;"
   fi
@@ -1076,12 +1083,15 @@ $echo "\nChecking /etc/syslog-ng.conf .."
 egrep  -v "$comments" /etc/syslog-ng.conf      2>/dev/null
 egrep  -v "$comments" /etc/syslog-ng/syslog-ng.conf      2>/dev/null
 egrep  -v "$comments" /usr/local/etc/syslog-ng.conf      2>/dev/null
+$echo "\nChecking /etc/rsyslog.conf .."
+egrep  -v "$comments" /etc/rsyslog.conf      2>/dev/null
 
 ###    * Cron
 $echo "\n---------- Cron ----------\n"
 
 $echo "root cron:"
 $crontab | egrep -v "$comments"
+egrep -v "$comments" /etc/crontab 2>/dev/null
 $echo ""
 
 if   [ "$os" = "SunOS" ] ; then 
@@ -1191,9 +1201,7 @@ fi
 
 # Version
 $echo "\nVersion:"
-process=`${proc1} | sort | uniq | grep mysqld`
-[ $? = 0 ] && $process -V 2>&1|head -1;
-
+run mysqladmin version
 
 files="/etc/my.cnf /etc/mysql/my.cnf"
 for f in $files; do
@@ -1352,6 +1360,7 @@ elif [ "$os" = "Linux" ] ; then
   fi
 
 ##Todo: Pkg list for suse
+##Todo: Make an option to make these check offline/online
 	if [ "$dist" = "redhat" ] ; then 
 		$echo "\nPending update:"
 		run yum check-update
