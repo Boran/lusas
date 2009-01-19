@@ -17,6 +17,7 @@ After analiysing the scripts and what they do we decided that we could give a ni
   * uptime
   * Hw Info
   * Filesystem Info
+  * Current runlevel
 
 *User / Accounts Info*
   * w / whodo
