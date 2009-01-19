@@ -1,4 +1,4 @@
-#summary Bla
+#summary New order of the tests
 #labels Phase-Requirements
 
 = Introduction =
@@ -39,7 +39,7 @@ After analiysing the scripts and what they do we decided that we could give a ni
   * Kernel Info
   * Process Info
   * List open files, devices, ports...
-  *Check /dev/random
+  * Check /dev/random
 
 *Services*
   * Services status
