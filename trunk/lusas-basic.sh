@@ -597,6 +597,11 @@ if   [ "$os" = "Linux" ] ; then
 	egrep -v "$comments" /etc/sysconfig/iptables 2> /dev/null
 	$echo "\n  /etc/sysconfig/iptables-config:"
 	egrep -v "$comments" /etc/sysconfig/iptables-config 2> /dev/null
+
+	if [ "$EXTENDED" = "1" && "$dist" =  "redhat"  ] ; then 
+    		cp -p /etc/sysconfig/iptables $DESTDIR/etc/sysconfig/
+   		cp -p /etc/sysconfig/iptables-config $DESTDIR/etc/sysconfig/
+	fi
 	
     elif [ -f  /sbin/ipchains ] ; then
 		# ipchains kernel 2.0 - 2.2
