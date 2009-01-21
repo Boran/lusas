@@ -54,19 +54,23 @@ OPTIONS:
    -d	email or emails where to send the results. i.e.: a@example.com,b@example.com,root
    -e	Extended.  Collect a copy of files
    -s	Verify package checksums
-   -c	Don't clean up after run. Leave the directory with the results on disk.
+   -l	Don't clean up after run. Leave the directory with the results on disk.
+   -c	Cleanup after run, leave nothing behind.
+
+	If neither -l or -c are not set a .tar.gz file with the result will be left on disk.
 
 EOF
 }
 
 
-while getopts ":hd:ces" options; do
+while getopts ":hd:cles" options; do
   case $options in
     h ) usage
 	exit 1;;
     d ) DESTEMAIL=$OPTARG;;
     e ) EXTENDED=1;;
     s ) VERIFY=1;;
+    l ) LEAVE=1;;
     c ) CLEANUP=1;;
     \? ) usage
 	exit 1;;
@@ -75,9 +79,17 @@ while getopts ":hd:ces" options; do
   esac
 done
 
+##These options exclude each other
+if [ $CLEANUP ] && [ $LEAVE ]; then
+	echo "-c and -l cannot be used together. \n"
+	usage
+	exit 1	
+fi
+
 ##Check for uuencode and warn if it is not there
 if !( [ -f /usr/bin/uuencode ] || [ -f /bin/uuencode ])  && [ $DESTEMAIL ] ; then 
-	echo "warning:  uuencode is not found on this server, I can't send the results by email\n\n"
+	echo "warning:  uuencode is not found on this server, I can't send the results by email"
+	echo ""; echo ""
 fi
 
 
@@ -1538,15 +1550,23 @@ if [ $DESTEMAIL  ]; then
 
 fi
 
-##Cleanup
-if [ $CLEANUP ]; then 
-
+##Leave files on disk in either a tar.gz or a directory
+if [ $LEAVE ]; then 
 	$echo "Results were saved in $DESTDIR"
 	rm -f $reportfilename
-
 else
 	##Delete the result directory
 	$echo "Results were saved in $pwd/$reportfilename"
 	rm -rf $DESTDIR
 fi
+
+##Cleanup
+if [ $CLEANUP ]; then 
+	$echo "Resulting files will be removed"
+	rm -rf $DESTDIR
+	rm -f $reportfilename
+fi
+
+
+
 
