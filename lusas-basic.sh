@@ -483,6 +483,8 @@ fi
 if [ "$EXTENDED" = "1" ] ; then 
     cp -p /etc/passwd $DESTDIR/etc/
     cp -p /etc/shadow $DESTDIR/etc/
+    mkdir -p $DESTDIR/etc/ssh/
+    cp -p /etc/ssh/ssh* $DESTDIR/etc/ssh/
 fi
 
 ###    * Account settings
@@ -667,7 +669,7 @@ if   [ "$os" = "Linux" ] ; then
     done;
     
     $echo "\nLinux: kernel parameters --"
-    for f in net.ipv4.icmp_echo_ignore_all net.ipv4.icmp_echo_ignore_broadcasts net.ipv4.conf.all.accept_source_route net.ipv4.conf.all.send_redirects net.ipv4.ip_forward net.ipv4.conf.all.forwarding net.ipv4.conf.all.mc_forwarding net.ipv4.conf.all.rp_filter net.ipv4.ip_always_defrag net.ipv4.conf.all.log_martians; do
+    for f in net.ipv4.icmp_echo_ignore_all net.ipv4.icmp_echo_ignore_broadcasts net.ipv4.conf.all.accept_source_route net.ipv4.conf.all.send_redirects net.ipv4.ip_forward net.ipv4.conf.all.forwarding net.ipv4.conf.all.mc_forwarding net.ipv4.conf.all.rp_filter net.ipv4.ip_always_defrag net.ipv4.conf.all.log_martians net.ipv4.tcp_max_syn_backlog net.ipv4.tcp_syn_retries ; do
 	
      #echo `sysctl $f` 2>/dev/null
 	sysctl $f 2>/dev/null
