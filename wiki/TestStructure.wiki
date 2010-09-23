@@ -61,7 +61,7 @@ After analiysing the scripts and what they do we decided that we could give a ni
     * LDAP
     * Apache
     * Syslog
-    * Cron
+    * Cron and at
     * Mail Services
       * Sendmail
       * Postfix
@@ -76,6 +76,7 @@ After analiysing the scripts and what they do we decided that we could give a ni
 *Software, Packages*
   * Installed software
   * Patch level
+  * List of files with suid and sgid
 
 *Logs*
   * Capture log files
