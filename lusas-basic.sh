@@ -37,7 +37,7 @@
 #     `uname -n`.lusas-basic.sh.Z |mailx -s "`uname -n` lusas-basic" root 
 #  On some Linux, replace 'mailx' by 'mail' in the above examples.
 
-VERSION="lusas-basic: 1.1";
+VERSION="lusas-basic: 1.1.1";
 
 ########## Getopts ###########
 
@@ -87,11 +87,10 @@ if [ $CLEANUP ] && [ $LEAVE ]; then
 fi
 
 ##Check for uuencode and warn if it is not there
-if !( [ -f /usr/bin/uuencode ] || [ -f /bin/uuencode ])  && [ $DESTEMAIL ] ; then 
+if [ ! -f /usr/bin/uuencode -o ! -f /bin/uuencode ] && [ $DESTEMAIL ] ; then
 	echo "warning:  uuencode is not found on this server, I can't send the results by email"
 	echo ""; echo ""
 fi
-
 
 ########## Settings ###########
 # Debugging
@@ -158,6 +157,10 @@ hw=`uname -m`
 
 ##Record the start time to show it at the end
 start_time=`date`
+
+#Save $PATH before changing it
+ORIG_PATH=$PATH
+
 
 if [ "$os" = "SunOS" ] ; then
     echo='/usr/5bin/echo'
@@ -493,7 +496,7 @@ $echo "---------- Account settings ----------\n"
 $echo "\nEnvironment variables and PATH:"
 $echo "(check especially for '.' in the root PATH)"
 env
-echo $PATH
+echo $ORIG_PATH
 $echo "\nroot interactive umask (should be at least 022, or better 027 or 077):"
 umask
 $echo "\nSearching for Daemon umasks in /sbin/init.d/*/* (to see if daemons start securely):"
@@ -509,11 +512,17 @@ fi
 $echo "\nHome directory and SSH trust permissions: (watch out for world/group writeable)"
 #awk -F: '{print $6}' /etc/passwd | uniq| xargs ls -ld 2>/dev/null
 for h in `awk -F: '{print $6}' /etc/passwd | uniq` ; do
+    # Check permissions of ~/, ssh pub-key auth and rhosts
     ls -ald $h
-    if [ -f $h/.ssh/authorized_keys ] ; then
-	ls -ald $h/.ssh/authorized_keys
-	cat $h/.ssh/authorized_keys
-    fi
+    for i in $h/.ssh/authorized_keys $h/.ssh/authorization $h/.rhost; do
+      # Check for the files and their contents
+      if [ -f $i ] ; then
+	  ls -ald $i
+	  $echo "$i:"
+	  cat $i
+      fi
+    done
+    $echo ""
 done
 
 $echo "\n/etc/shells:"
@@ -530,6 +539,7 @@ if     [ "$os" = "HP-UX" ] ; then
 elif   [ "$os" = "SunOS" ] ; then 
     $echo "/etc/default/login :"
     egrep -v "$comments" /etc/default/login
+    
     
 elif   [ "$os" = "Linux" ] ; then 
     $echo "root is allowed to logon to the following (/etc/securetty) -"
@@ -578,12 +588,23 @@ netstat -rn;
 ###  * Ports and sockets
 $echo "\n---------- Ports and sockets ----------\n"
 #$echo "\nNetwork connections - current:"
-netstat -a
 
-if [ "$os" = "SunOS" ] ; then
+if [ "$os" = "Linux" ] ; then
+  netstat -atpn
+  netstat -aupn
+
+elif [ "$os" = "SunOS" ] ; then
+  #netstat -an -P tcp
+  #netstat -an -P udp
+  netstat -an -f inet
+  netstat -an -f inet6
+
   #$echo "\nls -l /proc (You only need to look at this if an intrusion is probable)"
   $echo "\nProcesses, and socks, from 'pfiles /proc/*"
   pfiles /proc/* | egrep 'sockname: AF_INET|peername|^[0-9]+:'| egrep -v 'sockname: AF_INET 0.0.0.0'
+
+else
+  netstat -an
 fi
 
 ###  * List open files, devices, ports... 
@@ -669,11 +690,15 @@ if   [ "$os" = "Linux" ] ; then
     done;
     
     $echo "\nLinux: kernel parameters --"
-    for f in net.ipv4.icmp_echo_ignore_all net.ipv4.icmp_echo_ignore_broadcasts net.ipv4.conf.all.accept_source_route net.ipv4.conf.all.send_redirects net.ipv4.ip_forward net.ipv4.conf.all.forwarding net.ipv4.conf.all.mc_forwarding net.ipv4.conf.all.rp_filter net.ipv4.ip_always_defrag net.ipv4.conf.all.log_martians net.ipv4.tcp_max_syn_backlog net.ipv4.tcp_syn_retries ; do
+    for f in net.ipv4.ip_forward net.ipv4.conf.all.forwarding net.ipv4.conf.all.mc_forwarding net.ipv4.conf.all.rp_filter net.ipv4.icmp_echo_ignore_broadcasts net.ipv4.icmp_echo_ignore_all net.ipv4.tcp_max_syn_backlog  /proc/sys/net/ipv4/tcp_syncookies net.ipv4.conf.all.accept_source_route net.ipv4.conf.all.send_redirects   net.ipv4.ip_always_defrag net.ipv4.conf.all.log_martians  net.ipv4.tcp_syn_retries ; do
 	
      #echo `sysctl $f` 2>/dev/null
 	sysctl $f 2>/dev/null
     done
+    $echo ""
+    $echo "cat /proc/sys/net/ipv4/conf/*/log_martians"
+    cat /proc/sys/net/ipv4/conf/*/log_martians
+    $echo ""
     
     if [ "$EXTENDED" = "1" ] ; then
 	$echo "\nLinux: kernel modules (modprobe -c -l) --\n"
@@ -724,7 +749,7 @@ if   [ "$os" = "SunOS" ] ; then
   done
 
   ## TCP
-  for f in tcp_strong_iss tcp_conn_req_max_q tcp_extra_priv_ports tcp_conn_req_max_q0 tcp_time_wait_interval tcp_ip_abort_cinterval; do
+  for f in tcp_strong_iss tcp_conn_req_max_q tcp_conn_req_max_q0 tcp_extra_priv_ports tcp_time_wait_interval tcp_ip_abort_cinterval; do
     echo "$f=`ndd /dev/tcp  $f`"
   done
   $echo "\nndd TCP desired values: tcp_ip_abort_cinterval=60000 (1min) to mitigate SYN flooding. For Solaris <2.6 check also  tcp_conn_req_max."
@@ -732,7 +757,7 @@ if   [ "$os" = "SunOS" ] ; then
   ## IP
   $echo "\nndd IP desired values: ip_forwarding=0 ip_forward_src_routed=0 ip_forward_directed_broadcasts=0 ip_check_subnet_addr=0 ip_respond_to_echo_broadcast=0 ip_respond_to_timestamp=0 ip_respond_to_timestamp_broadcast=0 ip_send_redirects=0 ip_send_source_quench=0 "
   $echo "\nndd ip - actual values : "
-  for f in ip_respond_to_timestamp ip_respond_to_address_mask_broadcast ip_ignore_redirect ip_ire_flush_interval ip_forward_src_routed ip_forward_directed_broadcasts ip_strict_dst_multihoming ip_forwarding ip_send_redirects ip6_forwarding ip6_send_redirects ip6_ignore_redirect; do
+  for f in ip_forwarding ip_strict_dst_multihoming ip_respond_to_echo_broadcast ip_forward_directed_broadcasts tcp_rev_src_routes ip_respond_to_timestamp ip_respond_to_address_mask_broadcast ip_ignore_redirect ip_ire_flush_interval ip_forward_src_routed ip_send_redirects ip6_forwarding ip6_send_redirects ip6_ignore_redirect; do
     echo "$f=`ndd /dev/ip  $f`"
   done
 
@@ -780,8 +805,14 @@ if   [ "$os" = "Linux" ] ; then
 ##Todo: Finish linux service list
 	if [ "$dist" =  "redhat" ] ; then
 		$echo "Running services -----\n"
-		for i in `ls /etc/init.d/*`; do $i status; done |grep running 2> /dev/null
-		$echo ""
+		for i in `ls /etc/init.d/xinetd CHANGES`; do 
+		  # Verify that the script checks $1
+		  grep case $i|grep \$1 >/dev/null 2>&1
+		  if [ $? = 0 ]; then
+		    $i status
+		  fi
+		done
+		$echo ""		
 		$echo "Services boot config -----\n"
 		run chkconfig --list
 
@@ -798,8 +829,14 @@ elif   [ "$os" = "SunOS" ] ; then
 		$echo "Running services -----"
 		svcs
 	else
-		for i in `ls /etc/init.d/*`; do $i status; done
-		$echo ""
+		for i in `ls /etc/init.d/xinetd CHANGES`; do 
+		  # Verify that the script checks $1
+		  grep case $i|grep \$1 >/dev/null 2>&1
+		  if [ $? = 0 ]; then
+		    $i status
+		  fi
+		done
+		$echo ""	
 	fi
 
 elif   [ "$os" = "HP-UX" ] ; then
@@ -1129,10 +1166,10 @@ elif   [ "$os" = "Linux" ] ; then
   ##Todo: Show contents of /etc/cron.d ?
   cat /etc/cron.d/cron.allow 2>/dev/null
   cat /etc/cron.d/at.allow   2>/dev/null
-  $echo "\ncron.deny:"
-  cat /etc/cron.d/cron.deny   2>/dev/null
-  $echo "\nat.deny:"
-  cat   /etc/cron.d/at.deny   2>/dev/null
+  $echo "\n/etc/cron.deny:"
+  cat /etc/cron.deny   2>/dev/null
+  $echo "\/etc/nat.deny:"
+  cat   /etc/at.deny   2>/dev/null
 
 elif   [ "$os" = "HP-UX" ] ; then 
   tail -50 /var/adm/cron/log
@@ -1325,11 +1362,14 @@ if [ "$os" = "Linux" ] ; then
 	/bin/false
 
   elif [ "$dist" = "debian" ] ; then
+  	dpkg -l > $DESTDIR/pkglist
+	$echo "A complete list of installed packages was written to $DESTDIR/pkglist"
 	/bin/false
   fi
 
 elif [ "$os" = "SunOS" ] ; then
-  pkginfo
+  pkginfo > $DESTDIR/pkglist
+  $echo "A complete list of installed packages was written to $DESTDIR/pkglist"
   
 elif [ "$os" = "HP-UX" ] ; then
   /bin/false
@@ -1393,6 +1433,9 @@ elif [ "$os" = "Linux" ] ; then
 elif [ "$os" = "OpenBSD" ] ; then 
   pkg_info;
 fi
+
+$echo "\nFiles with suid and sgid: stored in $DESTDIR/suid-list"
+find / \( -perm -6000 -o -perm -4000 -o -perm -2000 \) -exec ls -l {} \; > $DESTDIR/suid-list
 
 $echo "\nJava version:"
 # Suse reports version on stderr! java -version 2>/dev/null

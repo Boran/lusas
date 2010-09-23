@@ -2,3 +2,11 @@
 2008.11.18 SB Moved from hosted-project SVN to Gooogle code
               svn checkout http://lusas.googlecode.com/svn/trunk/
 2008.11.21 PE Test commit test
+
+2009.09.23 PE
+	- shows the correct value of $PATH (issue 4)
+	- Ports in Linux are shown with netstat -aptn and netstat -atpn (issue 5)
+	- Ports in Solaris are shown with netstat -an -f inet and netstat -an -f inet6 (issue 5)
+	- check for a "case" on all init.d scripts before checking the status (issue 6 and 9)
+	- Storing list of files with suid and sgid in suid-list
+	
