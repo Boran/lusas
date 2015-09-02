@@ -13,8 +13,13 @@ Starting Points
 2008: Pablo worked on a release replacing audit1.sh with lusas-basic.sh. 
 
 USAGE: 
+  sudo sh audit.sh
+
   ./lusas-basic.sh -h
+
   For the other audit scripts, refer to http://boran.com/audit
 
- sudo perl audit2.pl
+todo (2015)
+  - debian/ubuntu support
+
 
