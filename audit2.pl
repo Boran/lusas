@@ -17,6 +17,7 @@
 #
 $VERSION="audit2.pl/Oct.09";
 # History :
+#      01.Sep.15 sb Add generic linux (3.x kernel)
 #      29.Oct.08 sb Add $exclude_dirs, $group_rw
 # <13> 19.Jan.04 sb Update comments
 #      --- 2003 ---
@@ -80,8 +81,8 @@ $exclude_dirs='^\/home\/test1|^\/home\/test2';
 
 $group_rw = '';		        # '1'=Report group-writeable files (often a huge list we don't care about)
 
-$debug ='';			# '1'=debug (useful), ''=no debug (quiet)
-$debug2='0';			# '1'=print results to terminal also
+$debug ='0';			# '1'=debug (useful), ''=no debug (quiet)
+$debug2='1';			# '1'=print results to terminal also
                                 # (default is to write to file only)
 $email_results='0';		# '0'=write to file, don't email
 $user='root';                   # send email to him/her
@@ -187,6 +188,17 @@ elsif (($os_name = "Linux") && ($os =~ /^2\.\d\.\d/)) {
     #$get_fs_cmd ="/bin/mount | grep '/dev' | cut -d' ' -f3";
     # <11>
     $get_fs_cmd ="/bin/mount |grep '/dev' |egrep -v 'type (shm|devpts|iso9660)' |cut -d' ' -f3";
+    #$ifconfig_cmd ="/sbin/ifconfig -a  2>&1 | fgrep UP | fgrep -v lo0";
+    #$ifconfig_list ="ifconfig -a|grep inet";
+    $ifconfig_cmd ="/sbin/ifconfig -a 2>&1 | fgrep UP | fgrep -v LOOPBACK";
+    $ifconfig_list ="/sbin/ifconfig -a|grep inet|grep -v '127\.0\.0\.1'";
+}
+elsif (($os_name = "Linux") ) {
+    print "OS = Linux \n" if $debug;
+    $mail='/bin/mail';
+    #$get_fs_cmd ="/bin/mount | grep '/dev' | cut -d' ' -f3";
+    # <11>
+    $get_fs_cmd ="mount |grep '/dev' |egrep -v 'type (shm|devpts|cgroup|iso9660)' |cut -d' ' -f3";
     #$ifconfig_cmd ="/sbin/ifconfig -a  2>&1 | fgrep UP | fgrep -v lo0";
     #$ifconfig_list ="ifconfig -a|grep inet";
     $ifconfig_cmd ="/sbin/ifconfig -a 2>&1 | fgrep UP | fgrep -v LOOPBACK";
