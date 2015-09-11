@@ -55,6 +55,16 @@ USAGE
 These scripts are meant for system administrators. Read the headers in each script and checkout the configuration settings at the top of the script. Examples:
 
 ./lusas-basic.sh -h
+```
+OPTIONS:
+   -h   Show this message
+   -d   email or emails where to send the results. i.e.: a@example.com,b@example.com,root
+   -e   Extended.  Collect a copy of files
+   -s   Verify package checksums
+   -l   Don't clean up after run. Leave the directory with the results on disk.
+   -c   Cleanup after run, leave nothing behind.
+    If neither -l or -c are not set a .tar.gz file with the result will be left on disk.
+```
 
 audit1.sh: 
 set EXTENDED='1' for a full audit including extraction of shadow passwords
