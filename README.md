@@ -39,8 +39,7 @@ No file searches are conducted, to keep it fast.
 Tested on: Solaris 2.6/7/8/9, OpenBSD 2.6, RH 7, Suse 7.1/8.1, HP-UX11. Solaris is best supported.
 
 * audit2.pl (perl): This second script searches the entire file system, listing SUID, SGID, world-writable, group-writable files. It also lists trust files and their contents. Finally it lists files with weird names (e.g., containing punctuation characters), which might be danger or a sign of penetration. On a large server with 100GB disks, this can take a few hours to run.
-Initially tested on SunOS 5.5/6/7/8/9, OpenBSD 2.6, RH 7, Suse 7.1/8.1/9, HP-UX11.Focus has been on Ubuntu and HP these last few years.
-
+Initially tested on SunOS 5.5/6/7/8/9, OpenBSD 2.6, RH 7, Suse 7.1/8.1/9, HP-UX11.Focus has been on Ubuntu and HP in later years.
 * audit3.sh is a minimal Bourne shell script, that replaces audit2.pl and old systems than don't have Perl. Normally you don't need to run this.
 * audit4.sh: Create a list of active tcp/udp connections and listenings in a common format and summarize them in a logfile avoiding very big samplefiles. Udp Sessions cannot be sampled on every architecture.
 * audit4_summ.pl: Summarise results from audit4.sh on several machines
@@ -90,10 +89,3 @@ $aggressive = '0';              # '1'=Immediately DELETE baddies
 
 To run these audit scripts on a number of remote machines via an SSH trust, see the 'remote.sh' example script - adapt it to your needs.
 For the other auditing scripts, please read the script headers, they were developed for specific projects and many need tuning for your environment.
-
-
-todo (2015)
-===========
-  - move to github, refresh doc..
-  - debian/ubuntu support
-
