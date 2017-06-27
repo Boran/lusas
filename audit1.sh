@@ -453,7 +453,7 @@ if   [ "$os" = "SunOS" ] ; then
 fi
 
 $echo "\n\n>>>>> Processes "
-$echo     "      Are any enexpected processes running, are too many running"
+$echo     "      Are any unexpected processes running, are too many running"
 $echo     "      as root?"
 run $ps
 if [ "$os" = "SunOS" ] ; then
@@ -654,7 +654,7 @@ egrep -v "$comments" /sbin/init.d/*/* 2>/dev/null | grep umask
 egrep -v "$comments" /etc/init.d/*   2>/dev/null | grep umask
 egrep -v "$comments" /etc/init.d/*/* 2>/dev/null | grep umask
 if [ "$os" = "SunOS" ] ; then
-  $echo "Default system umask: ontents of /etc/default/init:"
+  $echo "Default system umask: contents of /etc/default/init:"
   egrep -v "$comments" /etc/default/init
 fi
 
@@ -712,8 +712,8 @@ if   [ "$os" = "Linux" ] ; then
   run faillog -a |head -50  2>/dev/null
 fi
 
-# logs: C2,Sulog,loginlog, cron log, accounting, /etc/utmp, utmpx, wtmp,
-#  wtmpx, lastlog , SAR logs, NIS+ transaction log, ...). 
+# logs: C2, Sulog, loginlog, cron log, accounting, /etc/utmp, utmpx, wtmp,
+#  wtmpx, lastlog, SAR logs, NIS+ transaction log, ...). 
 #  Are syslog messages centralised on a specially configured log server? 
 #  Are all priorities/services logged? 
 #  Are log files protected (file permissions)? 
